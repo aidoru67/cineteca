@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -459,16 +460,24 @@ let CFG = {url:'', key:'', omdb:''};
 let FILMS = [];
 let GENRE_MAP = {};
 
+// ─── CREDENZIALI HARDCODED ─────────────────────────────────
+const DEFAULTS = {
+  url:  'https://amehnlagrydfilqhpdtk.supabase.co',
+  key:  'sb_publishable_c3RMIc7jFuNvwqvEygL7AQ_ny1S4IpG',
+  omdb: '82912317'
+};
+
 function loadConfig(){
   try{ CFG = JSON.parse(localStorage.getItem('cineteca_cfg') || '{}'); }catch(e){}
-  CFG.url  = CFG.url  || '';
-  CFG.key  = CFG.key  || '';
-  CFG.omdb = CFG.omdb || '';
+  // Usa i valori hardcoded come default se non ci sono override
+  CFG.url  = CFG.url  || DEFAULTS.url;
+  CFG.key  = CFG.key  || DEFAULTS.key;
+  CFG.omdb = CFG.omdb || DEFAULTS.omdb;
 }
 function saveConfig(){
-  CFG.url  = document.getElementById('cfgUrl').value.trim();
-  CFG.key  = document.getElementById('cfgKey').value.trim();
-  CFG.omdb = document.getElementById('cfgOmdb').value.trim();
+  CFG.url  = document.getElementById('cfgUrl').value.trim()  || DEFAULTS.url;
+  CFG.key  = document.getElementById('cfgKey').value.trim()  || DEFAULTS.key;
+  CFG.omdb = document.getElementById('cfgOmdb').value.trim() || DEFAULTS.omdb;
   localStorage.setItem('cineteca_cfg', JSON.stringify(CFG));
   closeSetup();
   initSupabase();
@@ -737,9 +746,9 @@ function handleOverlayClick(e){
 
 // ─── SETUP MODAL ────────────────────────────────────────────────────
 function openSetup(){
-  document.getElementById('cfgUrl').value  = CFG.url  || '';
-  document.getElementById('cfgKey').value  = CFG.key  || '';
-  document.getElementById('cfgOmdb').value = CFG.omdb || '';
+  document.getElementById('cfgUrl').value  = CFG.url  || DEFAULTS.url;
+  document.getElementById('cfgKey').value  = CFG.key  || DEFAULTS.key;
+  document.getElementById('cfgOmdb').value = CFG.omdb || DEFAULTS.omdb;
   document.getElementById('setupOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
