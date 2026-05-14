@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cineteca — Aggiungi film</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#181824; --s1:#21212f; --s2:#2a2a3c; --s3:#333348;
+  --border:rgba(255,255,255,.09); --border2:rgba(255,255,255,.16);
+  --text:#f0eeff; --dim:#b0aec8; --muted:#6a6882;
+  --gold:#d4a85a; --gold-dim:rgba(212,168,90,.13);
+  --green:#50d090; --red:#f05858;
+  --ffd:'Cormorant Garamond',Georgia,serif;
+  --ffb:'DM Sans',system-ui,sans-serif;
+  --ffm:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14px;min-height:100vh}
+
+/* LOCK SCREEN */
+#lockScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(212,168,90,.07) 0%,transparent 70%);
+}
+.lock-box{
+  background:var(--s1);border:1px solid var(--border2);border-radius:20px;
+  padding:40px;max-width:380px;width:100%;text-align:center;
+}
+.lock-box h1{font-family:var(--ffd);font-size:2rem;font-weight:300;color:var(--gold);letter-spacing:.1em;margin-bottom:6px}
+.lock-box p{color:var(--muted);font-size:13px;margin-bottom:28px}
+.lock-input{
+  width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:var(--ffm);font-size:14px;letter-spacing:.15em;
+  padding:12px 16px;outline:none;text-align:center;margin-bottom:12px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.lock-input:focus{border-color:rgba(212,168,90,.5);box-shadow:0 0 0 3px rgba(212,168,90,.09)}
+.lock-btn{
+  width:100%;background:var(--gold);color:#181824;border:none;border-radius:10px;
+  padding:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--ffb);
+  transition:opacity .2s;
+}
+.lock-btn:hover{opacity:.85}
+.lock-err{color:var(--red);font-size:12px;margin-top:10px;min-height:18px}
+
+/* ADMIN PAGE */
+#adminPage{display:none}
+
+.admin-header{
+  background:rgba(24,24,36,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:0 clamp(14px,4vw,52px);
+  position:sticky;top:0;z-index:10;
+}
+.admin-header-inner{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:var(--ffd);font-size:1.2rem;font-weight:300;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+.logo b{font-weight:600}
+.back-link{font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
+.back-link:hover{color:var(--gold)}
+
+.admin-body{max-width:800px;margin:0 auto;padding:40px clamp(14px,4vw,52px) 80px}
+.admin-body h2{font-family:var(--ffd);font-size:2.2rem;font-weight:300;color:var(--text);margin-bottom:4px}
+.admin-body .sub{color:var(--muted);font-size:13px;margin-bottom:36px}
+
+/* FORM */
+.form-section{margin-bottom:28px}
+.form-section-title{font-size:10px;font-family:var(--ffm);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+.form-row.three{grid-template-columns:2fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:10px;font-family:var(--ffm);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.form-label span{color:var(--red);margin-left:2px}
+.form-input,.form-textarea{
+  background:var(--s2);border:1px solid var(--border);border-radius:9px;
+  color:var(--text);font-family:var(--ffb);font-size:13px;
+  padding:10px 13px;outline:none;width:100%;
+  transition:border-color .2s,box-shadow .2s;
+}
+.form-input:focus,.form-textarea:focus{border-color:rgba(212,168,90,.45);box-shadow:0 0 0 3px rgba(212,168,90,.08)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--muted)}
+.form-textarea{resize:vertical;min-height:100px;line-height:1.65}
+.hint{font-size:11px;color:var(--muted);line-height:1.4;margin-top:2px}
+.hint a{color:var(--gold);text-decoration:none}
+.hint a:hover{text-decoration:underline}
+
+/* GENRE GRID */
+.genre-grid{
+  display:flex;flex-wrap:wrap;gap:7px;
+  background:var(--s2);border:1px solid var(--border);border-radius:9px;
+  padding:14px;
+}
+.g-label{display:flex;align-items:center;cursor:pointer;user-select:none}
+.g-label input[type=checkbox]{display:none}
+.g-pill{
+  font-size:11px;padding:4px 12px;border-radius:20px;cursor:pointer;
+  background:var(--s3);border:1px solid var(--border);color:var(--dim);
+  transition:all .15s;
+}
+
+/* Genre colors for checked pills */
+.g-label.g-Azione       input:checked~.g-pill{background:rgba(240,120,88,.2);border-color:rgba(240,120,88,.5);color:#f07858}
+.g-label.g-Avventura    input:checked~.g-pill{background:rgba(240,170,80,.2);border-color:rgba(240,170,80,.5);color:#f0aa50}
+.g-label.g-Fantascienza  input:checked~.g-pill{background:rgba(96,176,248,.2);border-color:rgba(96,176,248,.5);color:#60b0f8}
+.g-label.g-Horror       input:checked~.g-pill{background:rgba(184,112,232,.2);border-color:rgba(184,112,232,.5);color:#b870e8}
+.g-label.g-Dramma       input:checked~.g-pill{background:rgba(232,192,80,.2);border-color:rgba(232,192,80,.5);color:#e8c050}
+.g-label.g-Commedia     input:checked~.g-pill{background:rgba(80,208,144,.2);border-color:rgba(80,208,144,.5);color:#50d090}
+.g-label.g-Thriller     input:checked~.g-pill{background:rgba(240,80,128,.2);border-color:rgba(240,80,128,.5);color:#f05080}
+.g-label.g-Animazione   input:checked~.g-pill{background:rgba(240,96,216,.2);border-color:rgba(240,96,216,.5);color:#f060d8}
+.g-label.g-Storico      input:checked~.g-pill{background:rgba(192,152,88,.2);border-color:rgba(192,152,88,.5);color:#c09858}
+.g-label.g-Fantasy      input:checked~.g-pill{background:rgba(152,112,240,.2);border-color:rgba(152,112,240,.5);color:#9870f0}
+.g-label.g-Supereroi    input:checked~.g-pill{background:rgba(88,136,248,.2);border-color:rgba(88,136,248,.5);color:#5888f8}
+.g-label.g-Crime        input:checked~.g-pill{background:rgba(240,88,88,.2);border-color:rgba(240,88,88,.5);color:#f05858}
+.g-label.g-Biografico   input:checked~.g-pill{background:rgba(152,200,72,.2);border-color:rgba(152,200,72,.5);color:#98c848}
+.g-label.g-Guerra       input:checked~.g-pill{background:rgba(144,152,120,.2);border-color:rgba(144,152,120,.5);color:#909878}
+.g-label.g-Musicale     input:checked~.g-pill{background:rgba(240,88,176,.2);border-color:rgba(240,88,176,.5);color:#f058b0}
+.g-label.g-Romantico    input:checked~.g-pill{background:rgba(240,128,168,.2);border-color:rgba(240,128,168,.5);color:#f080a8}
+.g-label.g-Mistero      input:checked~.g-pill{background:rgba(128,104,240,.2);border-color:rgba(128,104,240,.5);color:#8068f0}
+.g-label.g-Spy          input:checked~.g-pill{background:rgba(64,192,216,.2);border-color:rgba(64,192,216,.5);color:#40c0d8}
+.g-label.g-Heist        input:checked~.g-pill{background:rgba(216,160,72,.2);border-color:rgba(216,160,72,.5);color:#d8a048}
+.g-label.g-Western      input:checked~.g-pill{background:rgba(216,136,88,.2);border-color:rgba(216,136,88,.5);color:#d88858}
+.g-label.g-Italiano     input:checked~.g-pill{background:rgba(32,192,112,.2);border-color:rgba(32,192,112,.5);color:#20c070}
+.g-label.g-Cyberpunk    input:checked~.g-pill{background:rgba(24,216,200,.2);border-color:rgba(24,216,200,.5);color:#18d8c8}
+.g-label.g-Noir         input:checked~.g-pill{background:rgba(160,160,192,.2);border-color:rgba(160,160,192,.5);color:#a0a0c0}
+.g-label.g-Epico        input:checked~.g-pill{background:rgba(200,152,56,.2);border-color:rgba(200,152,56,.5);color:#c89038}
+.g-label.g-Rock         input:checked~.g-pill{background:rgba(232,80,104,.2);border-color:rgba(232,80,104,.5);color:#e85068}
+.g-label.g-Psicologico  input:checked~.g-pill{background:rgba(168,88,176,.2);border-color:rgba(168,88,176,.5);color:#a858b0}
+.g-label.g-Disastro     input:checked~.g-pill{background:rgba(220,100,40,.2);border-color:rgba(220,100,40,.5);color:#dc6428}
+.g-label.g-Sport        input:checked~.g-pill{background:rgba(64,180,220,.2);border-color:rgba(64,180,220,.5);color:#40b4dc}
+.g-label.g-Famiglia     input:checked~.g-pill{background:rgba(220,180,60,.2);border-color:rgba(220,180,60,.5);color:#dcb43c}
+.g-label.g-Space-Opera  input:checked~.g-pill{background:rgba(100,80,220,.2);border-color:rgba(100,80,220,.5);color:#6450dc}
+.g-label.g-Monster-Movie input:checked~.g-pill{background:rgba(80,200,100,.2);border-color:rgba(80,200,100,.5);color:#50c864}
+.g-label.g-Grottesco    input:checked~.g-pill{background:rgba(180,80,80,.2);border-color:rgba(180,80,80,.5);color:#b45050}
+.g-label.g-Filosofico   input:checked~.g-pill{background:rgba(100,120,160,.2);border-color:rgba(100,120,160,.5);color:#6478a0}
+.g-label.g-Spirituale   input:checked~.g-pill{background:rgba(200,160,80,.2);border-color:rgba(200,160,80,.5);color:#c8a050}
+.g-label.g-Gotico       input:checked~.g-pill{background:rgba(100,60,140,.2);border-color:rgba(100,60,140,.5);color:#643c8c}
+
+/* PREVIEW */
+.preview-box{
+  background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  padding:20px;display:flex;gap:16px;align-items:flex-start;
+  margin-bottom:28px;min-height:100px;
+}
+.preview-poster{
+  width:80px;height:120px;border-radius:8px;overflow:hidden;
+  background:var(--s3);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;
+}
+.preview-poster img{width:100%;height:100%;object-fit:cover}
+.preview-info{flex:1;min-width:0}
+.preview-title{font-family:var(--ffd);font-size:1.3rem;font-weight:400;color:var(--text);margin-bottom:4px}
+.preview-meta{font-family:var(--ffm);font-size:11px;color:var(--muted);margin-bottom:10px}
+.preview-tags{display:flex;flex-wrap:wrap;gap:4px}
+.preview-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--s3);border:1px solid var(--border);color:var(--dim)}
+
+/* ACTIONS */
+.form-actions{display:flex;gap:12px;margin-top:8px}
+.btn-save{
+  flex:1;background:var(--gold);color:#181824;border:none;border-radius:10px;
+  padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--ffb);
+  transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-save:hover{opacity:.85}
+.btn-save:disabled{opacity:.4;cursor:not-allowed}
+.btn-reset{
+  background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  color:var(--dim);font-size:14px;padding:13px 20px;cursor:pointer;font-family:var(--ffb);
+  transition:all .18s;
+}
+.btn-reset:hover{border-color:var(--muted);color:var(--text)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  border-radius:12px;padding:14px 20px;font-size:13px;
+  box-shadow:0 8px 28px rgba(0,0,0,.5);border:1px solid var(--border2);
+  transform:translateY(10px);opacity:0;transition:all .3s;pointer-events:none;
+  max-width:320px;line-height:1.5;
+}
+.toast.show{transform:none;opacity:1}
+.toast.ok{background:#1a2e22;border-color:rgba(80,208,144,.4);color:var(--green)}
+.toast.err{background:#2e1a1a;border-color:rgba(240,88,88,.4);color:var(--red)}
+
+/* RECENT */
+.recent-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.recent-item{
+  background:var(--s2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;
+}
+.recent-item img{width:36px;height:54px;object-fit:cover;border-radius:5px;flex-shrink:0;background:var(--s3)}
+.recent-item-info{flex:1;min-width:0}
+.recent-item-title{font-family:var(--ffd);font-size:.95rem;color:var(--text)}
+.recent-item-meta{font-family:var(--ffm);font-size:10px;color:var(--muted)}
+.recent-item-del{
+  background:transparent;border:1px solid var(--border);border-radius:7px;
+  color:var(--muted);font-size:11px;padding:5px 10px;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.recent-item-del:hover{border-color:var(--red);color:var(--red)}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .form-row.three{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOCK SCREEN ═══════════════════════════════════════ -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <h1>🎬</h1>
+    <h1 style="font-size:1.5rem;margin-bottom:8px">Area Riservata</h1>
+    <p>Inserisci la password per accedere alla gestione film</p>
+    <input class="lock-input" id="pwdInput" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="lock-btn" onclick="checkPassword()">Entra</button>
+    <div class="lock-err" id="lockErr"></div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PAGE ══════════════════════════════════════════ -->
+<div id="adminPage">
+
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div class="logo">Cine<b>teca</b> <span style="font-size:.75em;opacity:.5">/ admin</span></div>
+      <a class="back-link" href="index.html">
+        ← Torna alla collezione
+      </a>
+    </div>
+  </header>
+
+  <div class="admin-body">
+    <h2>Aggiungi un film</h2>
+    <p class="sub">Compila i campi e clicca Salva. Solo Titolo e Genere sono obbligatori.</p>
+
+    <!-- ANTEPRIMA -->
+    <div class="preview-box" id="previewBox">
+      <div class="preview-poster" id="prevPoster">🎬</div>
+      <div class="preview-info">
+        <div class="preview-title" id="prevTitle" style="color:var(--muted);font-style:italic">Anteprima film…</div>
+        <div class="preview-meta" id="prevMeta"></div>
+        <div class="preview-tags" id="prevTags"></div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-section">
+      <div class="form-section-title">Informazioni principali</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Titolo <span>*</span></label>
+          <input class="form-input" id="fTitle" type="text" placeholder="es. Il Padrino" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Regista</label>
+          <input class="form-input" id="fDirector" type="text" placeholder="es. Francis Ford Coppola" oninput="updatePreview()">
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label class="form-label">Anno</label>
+          <input class="form-input" id="fYear" type="number" min="1900" max="2030" placeholder="es. 1972" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rating IMDb</label>
+          <input class="form-input" id="fRating" type="number" min="0" max="10" step="0.1" placeholder="es. 9.2" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ID IMDb</label>
+          <input class="form-input" id="fImdb" type="text" placeholder="tt0068646" oninput="updatePreview()">
+          <div class="hint">Per il poster automatico. Trovalo su <a href="https://imdb.com" target="_blank">imdb.com</a> nell'URL del film.</div>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Sinossi</label>
+          <textarea class="form-textarea" id="fSynopsis" placeholder="Breve descrizione del film…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Generi <span style="color:var(--red)">*</span> — seleziona uno o più</div>
+      <div class="genre-grid" id="genreGrid"></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-reset" onclick="resetForm()">↺ Svuota</button>
+      <button class="btn-save" id="btnSave" onclick="saveFilm()">
+        <span id="btnText">💾 Salva nel database</span>
+      </button>
+    </div>
+
+    <!-- FILM RECENTI -->
+    <div class="form-section" style="margin-top:52px">
+      <div class="form-section-title">Film aggiunti di recente</div>
+      <div class="recent-list" id="recentList">
+        <div style="color:var(--muted);font-size:13px">Caricamento…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://amehnlagrydfilqhpdtk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_c3RMIc7jFuNvwqvEygL7AQ_ny1S4IpG';
+const OMDB_KEY     = '82912317';
+// ⬇ Cambia questa password con quella che vuoi usare
+const ADMIN_PWD    = 'cineteca2025';
+
+const SB = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── TUTTI I GENERI DISPONIBILI ──────────────────────────────────────
+const ALL_GENRES = [
+  "Azione","Avventura","Animazione","Biografico","Commedia","Commedia Nera",
+  "Crime","Cyberpunk","Disastro","Dramma","Epico","Famiglia","Fantasy",
+  "Filosofico","Giallo","Gotico","Grottesco","Guerra","Heist","Horror",
+  "Italiano","Legale","Mistero","Monster Movie","Musicale","Noir",
+  "Psicologico","Rock","Romantico","Space Opera","Spirituale","Sport",
+  "Spy","Steampunk","Storico","Supereroi","Thriller","Western","Fantascienza"
+].sort();
+
+// ─── PASSWORD ────────────────────────────────────────────────────────
+function checkPassword(){
+  const v = document.getElementById('pwdInput').value;
+  if(v === ADMIN_PWD){
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('adminPage').style.display  = 'block';
+    buildGenreGrid();
+    loadRecent();
+  } else {
+    document.getElementById('lockErr').textContent = 'Password errata, riprova.';
+    document.getElementById('pwdInput').value = '';
+    document.getElementById('pwdInput').focus();
+    setTimeout(()=>document.getElementById('lockErr').textContent='', 2500);
+  }
+}
+document.getElementById('pwdInput').addEventListener('keydown', e => { if(e.key==='Enter') checkPassword(); });
+
+// ─── GENRE GRID ──────────────────────────────────────────────────────
+function buildGenreGrid(){
+  const grid = document.getElementById('genreGrid');
+  ALL_GENRES.forEach(g => {
+    const cls = g.replace(/\s+/g,'-');
+    const label = document.createElement('label');
+    label.className = `g-label g-${cls}`;
+    label.innerHTML = `<input type="checkbox" value="${g}" onchange="updatePreview()"><span class="g-pill">${g}</span>`;
+    grid.appendChild(label);
+  });
+}
+
+function selectedGenres(){
+  return Array.from(document.querySelectorAll('#genreGrid input:checked')).map(i=>i.value);
+}
+
+// ─── LIVE PREVIEW ────────────────────────────────────────────────────
+let previewTimer;
+function updatePreview(){
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(async ()=>{
+    const title    = document.getElementById('fTitle').value.trim();
+    const director = document.getElementById('fDirector').value.trim();
+    const year     = document.getElementById('fYear').value.trim();
+    const rating   = document.getElementById('fRating').value.trim();
+    const imdbId   = document.getElementById('fImdb').value.trim();
+    const genres   = selectedGenres();
+
+    document.getElementById('prevTitle').textContent = title || 'Anteprima film…';
+    document.getElementById('prevTitle').style.color = title ? 'var(--text)' : 'var(--muted)';
+    document.getElementById('prevTitle').style.fontStyle = title ? 'normal' : 'italic';
+
+    let meta = [];
+    if(year)   meta.push(year);
+    if(rating) meta.push('★ '+rating);
+    if(director) meta.push(director);
+    document.getElementById('prevMeta').textContent = meta.join(' · ');
+
+    const tagsEl = document.getElementById('prevTags');
+    tagsEl.innerHTML = genres.map(g=>`<span class="preview-tag">${g}</span>`).join('');
+
+    // Poster via OMDB
+    if(imdbId && imdbId.startsWith('tt')){
+      try{
+        const r = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_KEY}`);
+        const d = await r.json();
+        const poster = document.getElementById('prevPoster');
+        if(d.Poster && d.Poster!=='N/A'){
+          poster.innerHTML = `<img src="${d.Poster}" alt="${title}">`;
+        } else {
+          poster.innerHTML = genres.length ? genreIcon(genres[0]) : '🎬';
+        }
+      }catch(e){}
+    } else {
+      document.getElementById('prevPoster').innerHTML = genres.length ? genreIcon(genres[0]) : '🎬';
+    }
+  }, 400);
+}
+
+const ICONS = {"Azione":"⚡","Avventura":"🗺️","Fantascienza":"🚀","Horror":"💀","Dramma":"🎭","Commedia":"😄","Thriller":"🔪","Animazione":"🎨","Storico":"📜","Fantasy":"🧙","Supereroi":"🦸","Crime":"🔫","Biografico":"📖","Guerra":"⚔️","Musicale":"🎵","Romantico":"❤️","Mistero":"🔍","Spy":"🕵️","Heist":"💰","Western":"🤠","Rock":"🎸","Psicologico":"🧠","Noir":"🎩","Epico":"🏛️"};
+function genreIcon(g){ for(const[k,v] of Object.entries(ICONS)) if(g.includes(k)) return v; return '🎬'; }
+
+// ─── SAVE ────────────────────────────────────────────────────────────
+async function saveFilm(){
+  const title   = document.getElementById('fTitle').value.trim();
+  const genres  = selectedGenres();
+  if(!title)   { showToast('Inserisci il titolo del film', 'err'); return; }
+  if(!genres.length) { showToast('Seleziona almeno un genere', 'err'); return; }
+
+  const btn  = document.getElementById('btnSave');
+  const btxt = document.getElementById('btnText');
+  btn.disabled = true; btxt.textContent = '⏳ Salvataggio…';
+
+  const imdbId   = document.getElementById('fImdb').value.trim();
+  const yearRaw  = document.getElementById('fYear').value.trim();
+  const ratingRaw= document.getElementById('fRating').value.trim();
+
+  // Fetch poster se c'è l'imdb id
+  let posterUrl = null;
+  if(imdbId && imdbId.startsWith('tt')){
+    try{
+      const r = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_KEY}`);
+      const d = await r.json();
+      if(d.Poster && d.Poster!=='N/A') posterUrl = d.Poster;
+    }catch(e){}
+  }
+
+  const payload = {
+    title,
+    genres,
+    director:  document.getElementById('fDirector').value.trim() || null,
+    year:      yearRaw   ? parseInt(yearRaw)   : null,
+    rating:    ratingRaw ? parseFloat(ratingRaw) : null,
+    synopsis:  document.getElementById('fSynopsis').value.trim() || null,
+    imdb_id:   imdbId || null,
+    poster_url: posterUrl,
+  };
+
+  const { data, error } = await SB.from('films').insert([payload]).select();
+  btn.disabled = false; btxt.textContent = '💾 Salva nel database';
+
+  if(error){
+    showToast('Errore: ' + error.message, 'err');
+  } else {
+    showToast(`✅ "${title}" aggiunto con successo!`, 'ok');
+    resetForm();
+    loadRecent();
+  }
+}
+
+function resetForm(){
+  ['fTitle','fDirector','fYear','fRating','fImdb','fSynopsis'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.querySelectorAll('#genreGrid input').forEach(i=>i.checked=false);
+  document.getElementById('prevTitle').textContent='Anteprima film…';
+  document.getElementById('prevTitle').style.color='var(--muted)';
+  document.getElementById('prevTitle').style.fontStyle='italic';
+  document.getElementById('prevMeta').textContent='';
+  document.getElementById('prevTags').innerHTML='';
+  document.getElementById('prevPoster').innerHTML='🎬';
+}
+
+// ─── RECENT LIST ─────────────────────────────────────────────────────
+async function loadRecent(){
+  const list = document.getElementById('recentList');
+  const { data, error } = await SB.from('films').select('id,title,year,director,genres,poster_url,imdb_id').order('created_at',{ascending:false}).limit(10);
+  if(error||!data||!data.length){
+    list.innerHTML = '<div style="color:var(--muted);font-size:13px">Nessun film trovato</div>';
+    return;
+  }
+  list.innerHTML = data.map(f=>`
+    <div class="recent-item" id="ri-${f.id}">
+      ${f.poster_url
+        ? `<img src="${f.poster_url}" alt="${esc(f.title)}">`
+        : `<div style="width:36px;height:54px;background:var(--s3);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">${genreIcon((f.genres||[])[0]||'')}</div>`
+      }
+      <div class="recent-item-info">
+        <div class="recent-item-title">${esc(f.title)}</div>
+        <div class="recent-item-meta">${[f.year, f.director].filter(Boolean).join(' · ')}</div>
+      </div>
+      <button class="recent-item-del" onclick="deleteFilm(${f.id},'${esc(f.title)}')">🗑 Elimina</button>
+    </div>
+  `).join('');
+}
+
+async function deleteFilm(id, title){
+  if(!confirm(`Eliminare "${title}" dal database? L'azione non è reversibile.`)) return;
+  const { error } = await SB.from('films').delete().eq('id', id);
+  if(error){ showToast('Errore eliminazione: '+error.message,'err'); return; }
+  document.getElementById('ri-'+id)?.remove();
+  showToast(`🗑 "${title}" eliminato`, 'ok');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.classList.remove('show'); }, 4000);
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
