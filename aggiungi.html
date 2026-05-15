@@ -35,36 +35,8 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14px;min-height:100vh}
 
-/* ── LOCK ───────────────────────────────────────── */
-#lockScreen{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
-  background:linear-gradient(135deg,#f3f1ff 0%,#e8e4ff 100%);
-}
-.lock-box{
-  background:var(--s1);border:1px solid var(--border2);border-radius:22px;
-  padding:44px 40px;max-width:380px;width:100%;text-align:center;
-  box-shadow:var(--shadow2);
-}
-.lock-icon{font-size:2.8rem;margin-bottom:12px}
-.lock-box h2{font-family:var(--ffd);font-size:1.9rem;font-weight:400;color:var(--text);margin-bottom:6px}
-.lock-box p{color:var(--muted);font-size:13px;margin-bottom:28px}
-.lock-input{
-  width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:10px;
-  color:var(--text);font-family:var(--ffm);font-size:15px;letter-spacing:.2em;
-  padding:13px 16px;outline:none;text-align:center;margin-bottom:12px;
-  transition:border-color .2s,box-shadow .2s;
-}
-.lock-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
-.lock-btn{
-  width:100%;background:var(--text);color:#fff;border:none;border-radius:10px;
-  padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--ffb);
-  transition:opacity .2s,transform .15s;
-}
-.lock-btn:hover{opacity:.85;transform:translateY(-1px)}
-.lock-err{color:var(--red);font-size:12px;margin-top:10px;min-height:18px}
-
 /* ── HEADER ─────────────────────────────────────── */
-#adminPage{display:none}
+
 .admin-header{
   background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border2);padding:0 clamp(14px,4vw,52px);
@@ -306,21 +278,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14p
 @media(max-width:600px){
   .form-row,.form-row.three{grid-template-columns:1fr}
   .omdb-row{flex-direction:column}
-  .lock-box{padding:32px 22px}
 }
 </style>
 </head>
 <body>
 
-<!-- LOCK -->
-<div id="lockScreen">
-  <div class="lock-box">
-    <div class="lock-icon">🎬</div>
     <h2>Area Riservata</h2>
     <p>Inserisci la password per gestire la collezione</p>
-    <input class="lock-input" id="pwdInput" type="password" placeholder="••••••••" autocomplete="current-password">
-    <button class="lock-btn" onclick="checkPwd()">Accedi</button>
-    <div class="lock-err" id="lockErr"></div>
   </div>
 </div>
 
@@ -350,7 +314,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14p
           </button>
         </div>
         <div class="omdb-results" id="omdbResults"></div>
-        <div id="fillBadge" style="display:none">
+        <div id="fillBadge" >
           <div class="fill-badge">✅ Dati compilati — controlla e modifica se necessario</div>
         </div>
       </div>
@@ -363,7 +327,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14p
       <div class="preview-info">
         <div class="preview-title" id="prevTitle" style="color:var(--muted);font-style:italic">Il film apparirà qui…</div>
         <div class="preview-meta"  id="prevMeta"></div>
-        <div class="preview-syn"   id="prevSyn" style="display:none"></div>
+        <div class="preview-syn"   id="prevSyn" ></div>
         <div class="preview-tags"  id="prevTags"></div>
       </div>
     </div>
@@ -430,8 +394,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14p
 const SUPABASE_URL = 'https://amehnlagrydfilqhpdtk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_c3RMIc7jFuNvwqvEygL7AQ_ny1S4IpG';
 const OMDB_KEY     = '82912317';
-const ADMIN_PWD    = 'cineteca2025';
 const SB = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+document.addEventListener("DOMContentLoaded", () => { buildGenreGrid(); loadRecent(); });
 
 const ALL_GENRES = [
   "Animazione","Avventura","Azione","Biografico","Commedia","Commedia Nera",
@@ -456,21 +420,6 @@ const ICONS = {"Azione":"⚡","Avventura":"🗺️","Fantascienza":"🚀","Horro
   "Western":"🤠","Rock":"🎸","Psicologico":"🧠","Noir":"🎩","Epico":"🏛️"};
 function gIcon(g){ for(const[k,v] of Object.entries(ICONS)) if((g||'').includes(k)) return v; return '🎬'; }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-/* PASSWORD */
-function checkPwd(){
-  if(document.getElementById('pwdInput').value===ADMIN_PWD){
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('adminPage').style.display='block';
-    buildGenreGrid(); loadRecent();
-  } else {
-    document.getElementById('lockErr').textContent='Password errata, riprova.';
-    document.getElementById('pwdInput').value='';
-    document.getElementById('pwdInput').focus();
-    setTimeout(()=>document.getElementById('lockErr').textContent='',2500);
-  }
-}
-document.getElementById('pwdInput').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPwd(); });
 
 /* GENRE GRID */
 function buildGenreGrid(){
