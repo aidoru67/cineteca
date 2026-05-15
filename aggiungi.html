@@ -9,24 +9,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg:      #f3f1ff;
-  --s1:      #ffffff;
-  --s2:      #eceaf8;
-  --s3:      #e0ddf4;
-  --border:  rgba(80,70,140,0.12);
-  --border2: rgba(80,70,140,0.22);
-  --text:    #1a1830;
-  --dim:     #4a4870;
-  --muted:   #8a88aa;
-  --gold:    #b07d20;
-  --gold-bg: rgba(176,125,32,0.10);
-  --gold-br: rgba(176,125,32,0.30);
-  --green:   #1a7a4a;
-  --green-bg:rgba(26,122,74,0.10);
-  --red:     #c0303a;
-  --red-bg:  rgba(192,48,58,0.08);
-  --shadow:  0 2px 12px rgba(60,50,120,0.08);
-  --shadow2: 0 8px 32px rgba(60,50,120,0.14);
+  --bg:#f3f1ff; --s1:#ffffff; --s2:#eceaf8; --s3:#e0ddf4;
+  --border:rgba(80,70,140,0.12); --border2:rgba(80,70,140,0.22);
+  --text:#1a1830; --dim:#4a4870; --muted:#8a88aa;
+  --gold:#b07d20; --gold-bg:rgba(176,125,32,0.10); --gold-br:rgba(176,125,32,0.30);
+  --green:#1a7a4a; --green-bg:rgba(26,122,74,0.10);
+  --red:#c0303a; --red-bg:rgba(192,48,58,0.08);
+  --blue:#1a5eb8; --blue-bg:rgba(26,94,184,0.08); --blue-br:rgba(26,94,184,0.25);
+  --shadow:0 2px 12px rgba(60,50,120,0.08); --shadow2:0 8px 32px rgba(60,50,120,0.14);
   --ffd:'Cormorant Garamond',Georgia,serif;
   --ffb:'DM Sans',system-ui,sans-serif;
   --ffm:'DM Mono',monospace;
@@ -35,150 +25,86 @@
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14px;min-height:100vh}
 
-/* ── HEADER ─────────────────────────────────────── */
-
-.admin-header{
-  background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border2);padding:0 clamp(14px,4vw,52px);
-  position:sticky;top:0;z-index:50;
-}
-.admin-header-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+/* HEADER */
+.admin-header{background:rgba(255,255,255,.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border2);padding:0 clamp(14px,4vw,52px);position:sticky;top:0;z-index:50}
+.admin-header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
 .logo{font-family:var(--ffd);font-size:1.2rem;font-weight:300;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
 .logo b{font-weight:600}
-.logo small{font-size:.7em;color:var(--muted);font-family:var(--ffb);letter-spacing:0;font-style:normal}
+.logo small{font-size:.7em;color:var(--muted);font-family:var(--ffb);letter-spacing:0}
 .back-link{font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .2s}
 .back-link:hover{color:var(--gold)}
 
-/* ── BODY ───────────────────────────────────────── */
-.admin-body{max-width:860px;margin:0 auto;padding:36px clamp(14px,4vw,52px) 100px}
+/* BODY */
+.admin-body{max-width:900px;margin:0 auto;padding:36px clamp(14px,4vw,52px) 100px}
 .page-title{font-family:var(--ffd);font-size:2.4rem;font-weight:300;color:var(--text);margin-bottom:4px}
 .page-sub{color:var(--muted);font-size:13px;margin-bottom:32px}
+.sec-title{font-size:10px;font-family:var(--ffm);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--border2);margin-bottom:16px}
 
-/* ── SECTION TITLE ──────────────────────────────── */
-.sec-title{
-  font-size:10px;font-family:var(--ffm);text-transform:uppercase;
-  letter-spacing:.12em;color:var(--muted);
-  padding-bottom:10px;border-bottom:1px solid var(--border2);
-  margin-bottom:16px;
-}
-
-/* ── OMDB SEARCH BOX ────────────────────────────── */
-.search-box{
-  background:linear-gradient(135deg,var(--gold-bg) 0%,rgba(176,125,32,0.04) 100%);
-  border:1px solid var(--gold-br);border-radius:16px;
-  padding:22px;margin-bottom:28px;
-}
-.search-box-label{
-  font-size:10px;font-family:var(--ffm);text-transform:uppercase;letter-spacing:.12em;
-  color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;
-}
-.search-box-label::after{content:'';flex:1;height:1px;background:var(--gold-br)}
+/* TMDB SEARCH BOX */
+.search-box{background:linear-gradient(135deg,var(--blue-bg) 0%,rgba(26,94,184,.03) 100%);border:1px solid var(--blue-br);border-radius:16px;padding:22px;margin-bottom:28px}
+.search-box-label{font-size:10px;font-family:var(--ffm);text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.search-box-label::after{content:'';flex:1;height:1px;background:var(--blue-br)}
+.search-box-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
+.search-box-sub a{color:var(--blue)}
 .omdb-row{display:flex;gap:10px}
-.omdb-input{
-  flex:1;background:var(--s1);border:1px solid var(--border2);border-radius:10px;
-  color:var(--text);font-family:var(--ffb);font-size:14px;
-  padding:11px 15px;outline:none;box-shadow:var(--shadow);
-  transition:border-color .2s,box-shadow .2s;
-}
+.omdb-input{flex:1;background:var(--s1);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--ffb);font-size:14px;padding:11px 15px;outline:none;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
 .omdb-input::placeholder{color:var(--muted)}
-.omdb-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
-.omdb-btn{
-  background:var(--text);color:#fff;border:none;border-radius:10px;
-  padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer;
-  font-family:var(--ffb);white-space:nowrap;transition:opacity .2s;
-  display:flex;align-items:center;gap:7px;
-}
+.omdb-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+.omdb-btn{background:var(--text);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--ffb);white-space:nowrap;transition:opacity .2s;display:flex;align-items:center;gap:7px}
 .omdb-btn:hover{opacity:.82}
 .omdb-btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* Dropdown */
+/* DROPDOWN */
 .omdb-wrap{position:relative}
-.omdb-results{
-  position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:200;
-  background:var(--s1);border:1px solid var(--border2);border-radius:12px;
-  box-shadow:var(--shadow2);overflow:hidden;max-height:360px;overflow-y:auto;
-  display:none;
-}
+.omdb-results{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:200;background:var(--s1);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow2);overflow:hidden;max-height:380px;overflow-y:auto;display:none}
 .omdb-results.open{display:block}
-.omdb-item{
-  display:flex;align-items:center;gap:12px;padding:11px 15px;
-  cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;
-}
+.omdb-item{display:flex;align-items:center;gap:12px;padding:11px 15px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
 .omdb-item:last-child{border-bottom:none}
 .omdb-item:hover{background:var(--s2)}
-.omdb-thumb{
-  width:38px;height:57px;border-radius:6px;flex-shrink:0;
-  background:var(--s3);display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;overflow:hidden;border:1px solid var(--border);
-}
+.omdb-thumb{width:42px;height:63px;border-radius:6px;flex-shrink:0;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;border:1px solid var(--border)}
 .omdb-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .omdb-item-info{flex:1;min-width:0}
-.omdb-item-title{font-family:var(--ffd);font-size:.95rem;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.omdb-item-title{font-family:var(--ffd);font-size:1rem;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .omdb-item-meta{font-family:var(--ffm);font-size:10px;color:var(--muted)}
-.omdb-item-cta{font-size:11px;color:var(--gold);font-family:var(--ffm);white-space:nowrap}
-.omdb-msg{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+.omdb-item-cta{font-size:11px;color:var(--blue);font-family:var(--ffm);white-space:nowrap}
+.omdb-msg{padding:20px;text-align:center;color:var(--muted);font-size:13px}
 
-.fill-badge{
-  display:inline-flex;align-items:center;gap:6px;margin-top:12px;
-  background:var(--green-bg);border:1px solid rgba(26,122,74,.3);
-  border-radius:20px;padding:5px 14px;font-size:11px;color:var(--green);font-family:var(--ffm);
-}
+/* BADGE */
+.fill-badge{display:inline-flex;align-items:center;gap:6px;margin-top:12px;border-radius:20px;padding:5px 14px;font-size:11px;font-family:var(--ffm)}
+.fill-badge.loading{background:var(--blue-bg);border:1px solid var(--blue-br);color:var(--blue)}
+.fill-badge.done{background:var(--green-bg);border:1px solid rgba(26,122,74,.3);color:var(--green)}
 
-/* ── PREVIEW ────────────────────────────────────── */
-.preview{
-  background:var(--s1);border:1px solid var(--border2);border-radius:14px;
-  padding:20px;display:flex;gap:18px;align-items:flex-start;
-  margin-bottom:28px;box-shadow:var(--shadow);
-}
-.preview-poster{
-  width:90px;height:135px;border-radius:9px;flex-shrink:0;
-  background:var(--s2);border:1px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:2rem;overflow:hidden;
-}
+/* PREVIEW */
+.preview{background:var(--s1);border:1px solid var(--border2);border-radius:14px;padding:20px;display:flex;gap:18px;align-items:flex-start;margin-bottom:28px;box-shadow:var(--shadow)}
+.preview-poster{width:100px;height:150px;border-radius:9px;flex-shrink:0;background:var(--s2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:2.2rem;overflow:hidden}
 .preview-poster img{width:100%;height:100%;object-fit:cover;display:block}
 .preview-info{flex:1;min-width:0;padding-top:2px}
-.preview-title{font-family:var(--ffd);font-size:1.4rem;font-weight:400;color:var(--text);margin-bottom:3px;line-height:1.2}
+.preview-title{font-family:var(--ffd);font-size:1.5rem;font-weight:400;color:var(--text);margin-bottom:3px;line-height:1.2}
 .preview-meta{font-family:var(--ffm);font-size:11px;color:var(--muted);margin-bottom:8px}
-.preview-syn{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.preview-syn{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .preview-tags{display:flex;flex-wrap:wrap;gap:4px}
-.preview-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--s2);border:1px solid var(--border2);color:var(--dim)}
+.preview-tag{font-size:10px;padding:2px 9px;border-radius:10px;background:var(--s2);border:1px solid var(--border2);color:var(--dim)}
 
-/* ── FORM INPUTS ────────────────────────────────── */
+/* FORM */
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .form-row.full{grid-template-columns:1fr}
 .form-row.three{grid-template-columns:2fr 1fr 1fr}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-label{font-size:10px;font-family:var(--ffm);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
 .req{color:var(--red);margin-left:2px}
-.form-input,.form-textarea{
-  background:var(--s1);border:1px solid var(--border2);border-radius:9px;
-  color:var(--text);font-family:var(--ffb);font-size:13px;
-  padding:10px 13px;outline:none;width:100%;box-shadow:var(--shadow);
-  transition:border-color .2s,box-shadow .2s;
-}
+.form-input,.form-textarea{background:var(--s1);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:var(--ffb);font-size:13px;padding:10px 13px;outline:none;width:100%;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
 .form-input::placeholder,.form-textarea::placeholder{color:var(--muted)}
 .form-input:focus,.form-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
 .form-textarea{resize:vertical;min-height:100px;line-height:1.65}
 .hint{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
 .hint a{color:var(--gold);text-decoration:none}
 
-/* ── GENRE GRID ─────────────────────────────────── */
-.genre-grid{
-  display:flex;flex-wrap:wrap;gap:7px;
-  background:var(--s1);border:1px solid var(--border2);border-radius:10px;
-  padding:16px;margin-bottom:28px;box-shadow:var(--shadow);
-}
+/* GENRE GRID */
+.genre-grid{display:flex;flex-wrap:wrap;gap:7px;background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:28px;box-shadow:var(--shadow)}
 .g-label{display:flex;cursor:pointer;user-select:none}
 .g-label input{display:none}
-.g-pill{
-  font-size:11px;padding:5px 13px;border-radius:20px;
-  background:var(--s2);border:1px solid var(--border2);color:var(--dim);
-  transition:all .15s;font-family:var(--ffb);
-}
+.g-pill{font-size:11px;padding:5px 13px;border-radius:20px;background:var(--s2);border:1px solid var(--border2);color:var(--dim);transition:all .15s;font-family:var(--ffb)}
 .g-label:hover .g-pill{border-color:var(--muted);color:var(--text)}
-
-/* Genre pill checked colors - light mode */
 .g-label.Azione      input:checked~.g-pill{background:rgba(200,80,50,.12);border-color:rgba(200,80,50,.4);color:#c85032}
 .g-label.Avventura   input:checked~.g-pill{background:rgba(200,130,30,.12);border-color:rgba(200,130,30,.4);color:#c88220}
 .g-label.Fantascienza input:checked~.g-pill{background:rgba(40,120,220,.12);border-color:rgba(40,120,220,.4);color:#2878dc}
@@ -212,191 +138,182 @@ body{background:var(--bg);color:var(--text);font-family:var(--ffb);font-size:14p
 .g-label.Filosofico  input:checked~.g-pill{background:rgba(60,90,150,.12);border-color:rgba(60,90,150,.4);color:#3c5a96}
 .g-label.Giallo      input:checked~.g-pill{background:rgba(180,150,10,.12);border-color:rgba(180,150,10,.4);color:#b4960a}
 
-/* ── ACTIONS ────────────────────────────────────── */
+/* ACTIONS */
 .form-actions{display:flex;gap:12px;margin-top:6px}
-.btn-save{
-  flex:1;background:var(--text);color:#fff;border:none;border-radius:10px;
-  padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--ffb);
-  transition:opacity .2s,transform .15s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
+.btn-save{flex:1;background:var(--text);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--ffb);transition:opacity .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-save:hover{opacity:.84;transform:translateY(-1px)}
 .btn-save:disabled{opacity:.35;cursor:not-allowed;transform:none}
-.btn-reset{
-  background:var(--s2);border:1px solid var(--border2);border-radius:10px;
-  color:var(--dim);font-size:14px;padding:13px 20px;cursor:pointer;font-family:var(--ffb);
-  transition:all .18s;
-}
+.btn-reset{background:var(--s2);border:1px solid var(--border2);border-radius:10px;color:var(--dim);font-size:14px;padding:13px 20px;cursor:pointer;font-family:var(--ffb);transition:all .18s}
 .btn-reset:hover{background:var(--s3);color:var(--text)}
 
-/* ── DIVIDER ────────────────────────────────────── */
+/* RECENT */
 .divider{border:none;border-top:1px solid var(--border2);margin:40px 0}
-
-/* ── RECENT ─────────────────────────────────────── */
 .recent-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
-.recent-item{
-  background:var(--s1);border:1px solid var(--border);border-radius:10px;
-  padding:11px 14px;display:flex;align-items:center;gap:12px;
-  box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s;
-}
-.recent-item:hover{border-color:var(--border2);box-shadow:var(--shadow2)}
-.recent-thumb{
-  width:36px;height:54px;border-radius:6px;flex-shrink:0;
-  background:var(--s2);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;
-}
+.recent-item{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);transition:border-color .2s}
+.recent-item:hover{border-color:var(--border2)}
+.recent-thumb{width:36px;height:54px;border-radius:6px;flex-shrink:0;background:var(--s2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden}
 .recent-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .recent-info{flex:1;min-width:0}
 .recent-title{font-family:var(--ffd);font-size:.95rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recent-meta{font-family:var(--ffm);font-size:10px;color:var(--muted)}
-.recent-del{
-  background:transparent;border:1px solid var(--border2);border-radius:7px;
-  color:var(--muted);font-size:11px;padding:5px 10px;cursor:pointer;
-  flex-shrink:0;transition:all .18s;font-family:var(--ffb);
-}
+.recent-del{background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--muted);font-size:11px;padding:5px 10px;cursor:pointer;flex-shrink:0;transition:all .18s;font-family:var(--ffb)}
 .recent-del:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 
-/* ── TOAST ──────────────────────────────────────── */
-.toast{
-  position:fixed;bottom:28px;right:28px;z-index:999;
-  border-radius:12px;padding:14px 20px;font-size:13px;
-  box-shadow:var(--shadow2);border:1px solid var(--border2);
-  transform:translateY(12px);opacity:0;transition:all .3s;pointer-events:none;
-  max-width:320px;line-height:1.5;background:var(--s1);
-}
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:999;border-radius:12px;padding:14px 20px;font-size:13px;box-shadow:var(--shadow2);border:1px solid var(--border2);transform:translateY(12px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px;line-height:1.5;background:var(--s1)}
 .toast.show{transform:none;opacity:1}
-.toast.ok {border-color:rgba(26,122,74,.35);color:var(--green)}
+.toast.ok{border-color:rgba(26,122,74,.35);color:var(--green)}
 .toast.err{border-color:rgba(192,48,58,.35);color:var(--red)}
 
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:var(--text);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.15);border-top-color:currentColor;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
 @keyframes sp{to{transform:rotate(360deg)}}
-
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
-
-@media(max-width:600px){
-  .form-row,.form-row.three{grid-template-columns:1fr}
-  .omdb-row{flex-direction:column}
-}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
+@media(max-width:600px){.form-row,.form-row.three{grid-template-columns:1fr}.omdb-row{flex-direction:column}}
 </style>
 </head>
 <body>
 
-    <h2>Area Riservata</h2>
-    <p>Inserisci la password per gestire la collezione</p>
+<header class="admin-header">
+  <div class="admin-header-inner">
+    <div class="logo">Cine<b>teca</b> <small>/ admin</small></div>
+    <a class="back-link" href="index.html">← Torna alla collezione</a>
   </div>
-</div>
+</header>
 
-<!-- ADMIN -->
-<div id="adminPage">
-  <header class="admin-header">
-    <div class="admin-header-inner">
-      <div class="logo">Cine<b>teca</b> <small>/ admin</small></div>
-      <a class="back-link" href="index.html">← Torna alla collezione</a>
-    </div>
-  </header>
+<div class="admin-body">
+  <h1 class="page-title">Aggiungi un film</h1>
+  <p class="page-sub">Cerca il titolo per compilare tutto automaticamente, oppure inserisci i dati a mano.</p>
 
-  <div class="admin-body">
-    <h1 class="page-title">Aggiungi un film</h1>
-    <p class="page-sub">Cerca il titolo per compilare tutto automaticamente, oppure inserisci i dati a mano.</p>
-
-    <!-- RICERCA OMDB -->
-    <div class="search-box">
-      <div class="search-box-label">🔍 Ricerca automatica</div>
-      <div class="omdb-wrap">
-        <div class="omdb-row">
-          <input class="omdb-input" id="omdbQuery" type="text"
-            placeholder="Scrivi il titolo del film (in italiano o inglese)…"
-            oninput="onQueryInput()" onkeydown="if(event.key==='Enter')doSearch()">
-          <button class="omdb-btn" id="searchBtn" onclick="doSearch()">
-            <span id="searchIcon">🔎</span> Cerca
-          </button>
-        </div>
-        <div class="omdb-results" id="omdbResults"></div>
-        <div id="fillBadge" >
-          <div class="fill-badge">✅ Dati compilati — controlla e modifica se necessario</div>
-        </div>
+  <!-- RICERCA TMDB -->
+  <div class="search-box">
+    <div class="search-box-label">🎬 Ricerca automatica — TMDB</div>
+    <p class="search-box-sub">
+      Dati, sinossi e poster in italiano direttamente da
+      <a href="https://www.themoviedb.org" target="_blank">The Movie Database</a>.
+      Serve la tua API key gratuita — vedi le istruzioni in fondo alla pagina.
+    </p>
+    <div class="omdb-wrap">
+      <div class="omdb-row">
+        <input class="omdb-input" id="tmdbQuery" type="text"
+          placeholder="Scrivi il titolo del film…"
+          oninput="onQueryInput()" onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="omdb-btn" id="searchBtn" onclick="doSearch()">
+          <span id="searchIcon">🔎</span> Cerca
+        </button>
       </div>
-    </div>
-
-    <!-- ANTEPRIMA -->
-    <div class="sec-title">Anteprima</div>
-    <div class="preview">
-      <div class="preview-poster" id="prevPoster">🎬</div>
-      <div class="preview-info">
-        <div class="preview-title" id="prevTitle" style="color:var(--muted);font-style:italic">Il film apparirà qui…</div>
-        <div class="preview-meta"  id="prevMeta"></div>
-        <div class="preview-syn"   id="prevSyn" ></div>
-        <div class="preview-tags"  id="prevTags"></div>
+      <div class="omdb-results" id="tmdbResults"></div>
+      <div id="fillBadge" style="display:none">
+        <div class="fill-badge done">✅ Dati e sinossi in italiano compilati automaticamente</div>
       </div>
-    </div>
-
-    <!-- FORM -->
-    <div class="sec-title">Dati del film</div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Titolo <span class="req">*</span></label>
-        <input class="form-input" id="fTitle" type="text" placeholder="es. Il Padrino" oninput="livePreview()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Regista</label>
-        <input class="form-input" id="fDirector" type="text" placeholder="es. Francis Ford Coppola" oninput="livePreview()">
-      </div>
-    </div>
-
-    <div class="form-row three">
-      <div class="form-group">
-        <label class="form-label">Anno</label>
-        <input class="form-input" id="fYear" type="number" min="1900" max="2030" placeholder="1972" oninput="livePreview()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Rating IMDb</label>
-        <input class="form-input" id="fRating" type="number" min="0" max="10" step="0.1" placeholder="9.2" oninput="livePreview()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">ID IMDb</label>
-        <input class="form-input" id="fImdb" type="text" placeholder="tt0068646" oninput="livePreview()">
-        <div class="hint">Da <a href="https://imdb.com" target="_blank">imdb.com</a> → nell'URL del film</div>
-      </div>
-    </div>
-
-    <div class="form-row full" style="margin-bottom:24px">
-      <div class="form-group">
-        <label class="form-label">Sinossi</label>
-        <textarea class="form-textarea" id="fSynopsis" placeholder="Breve descrizione del film…" oninput="livePreview()"></textarea>
-      </div>
-    </div>
-
-    <div class="sec-title">Generi <span class="req">*</span> — seleziona uno o più</div>
-    <div class="genre-grid" id="genreGrid"></div>
-
-    <div class="form-actions">
-      <button class="btn-reset" onclick="resetForm()">↺ Svuota</button>
-      <button class="btn-save" id="btnSave" onclick="saveFilm()">
-        <span id="btnText">💾 Salva nel database</span>
-      </button>
-    </div>
-
-    <hr class="divider">
-
-    <div class="sec-title">Ultimi film aggiunti</div>
-    <div class="recent-list" id="recentList">
-      <div style="color:var(--muted);padding:10px 0;font-size:13px">Caricamento…</div>
     </div>
   </div>
-</div>
+
+  <!-- ANTEPRIMA -->
+  <div class="sec-title">Anteprima</div>
+  <div class="preview">
+    <div class="preview-poster" id="prevPoster">🎬</div>
+    <div class="preview-info">
+      <div class="preview-title" id="prevTitle" style="color:var(--muted);font-style:italic">Il film apparirà qui…</div>
+      <div class="preview-meta"  id="prevMeta"></div>
+      <div class="preview-syn"   id="prevSyn" style="display:none"></div>
+      <div class="preview-tags"  id="prevTags"></div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="sec-title">Dati del film</div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">Titolo <span class="req">*</span></label>
+      <input class="form-input" id="fTitle" type="text" placeholder="es. Il Padrino" oninput="livePreview()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Regista</label>
+      <input class="form-input" id="fDirector" type="text" placeholder="es. Francis Ford Coppola" oninput="livePreview()">
+    </div>
+  </div>
+
+  <div class="form-row three">
+    <div class="form-group">
+      <label class="form-label">Anno</label>
+      <input class="form-input" id="fYear" type="number" min="1900" max="2030" placeholder="1972" oninput="livePreview()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rating IMDb</label>
+      <input class="form-input" id="fRating" type="number" min="0" max="10" step="0.1" placeholder="9.2" oninput="livePreview()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ID IMDb</label>
+      <input class="form-input" id="fImdb" type="text" placeholder="tt0068646" oninput="livePreview()">
+      <div class="hint">Compilato in automatico dalla ricerca</div>
+    </div>
+  </div>
+
+  <div class="form-row full" style="margin-bottom:24px">
+    <div class="form-group">
+      <label class="form-label">Sinossi</label>
+      <textarea class="form-textarea" id="fSynopsis" placeholder="Compilata in automatico dalla ricerca, puoi modificarla…" oninput="livePreview()"></textarea>
+    </div>
+  </div>
+
+  <div class="sec-title">Generi <span class="req">*</span> — seleziona uno o più</div>
+  <div class="genre-grid" id="genreGrid"></div>
+
+  <div class="form-actions">
+    <button class="btn-reset" onclick="resetForm()">↺ Svuota</button>
+    <button class="btn-save" id="btnSave" onclick="saveFilm()">
+      <span id="btnText">💾 Salva nel database</span>
+    </button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- FILM RECENTI -->
+  <div class="sec-title">Ultimi film aggiunti</div>
+  <div class="recent-list" id="recentList">
+    <div style="color:var(--muted);padding:10px 0;font-size:13px">Caricamento…</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ISTRUZIONI TMDB -->
+  <div class="sec-title">Come ottenere la chiave TMDB gratuita</div>
+  <div style="background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:20px;box-shadow:var(--shadow);font-size:13px;color:var(--dim);line-height:1.8">
+    <ol style="padding-left:20px;display:flex;flex-direction:column;gap:6px">
+      <li>Vai su <a href="https://www.themoviedb.org/signup" target="_blank" style="color:var(--blue)">themoviedb.org/signup</a> e crea un account gratuito</li>
+      <li>Dopo il login vai su <strong style="color:var(--text)">Impostazioni → API</strong></li>
+      <li>Clicca <strong style="color:var(--text)">"Richiedi una chiave API"</strong> → scegli <em>Developer</em></li>
+      <li>Compila il modulo (uso personale, sito personale) e conferma</li>
+      <li>Copia il valore <strong style="color:var(--text)">"API Key (v3 auth)"</strong></li>
+      <li>Aprì questo file <code style="background:var(--s2);padding:2px 6px;border-radius:4px">aggiungi.html</code> con un editor di testo, cerca la riga <code style="background:var(--s2);padding:2px 6px;border-radius:4px">const TMDB_KEY</code> e incolla la tua chiave tra i due apici</li>
+    </ol>
+  </div>
+
+</div><!-- /admin-body -->
 
 <div class="toast" id="toast"></div>
 
 <script>
+/* ── CONFIG ────────────────────────────────────────────── */
 const SUPABASE_URL = 'https://amehnlagrydfilqhpdtk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_c3RMIc7jFuNvwqvEygL7AQ_ny1S4IpG';
-const OMDB_KEY     = '82912317';
-const SB = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-document.addEventListener("DOMContentLoaded", () => { buildGenreGrid(); loadRecent(); });
+const TMDB_KEY     = '6016402aba8769b143c9a17c7741a90d'; // ← sostituisci con la tua chiave gratuita
+const TMDB_BASE    = 'https://api.themoviedb.org/3';
+const TMDB_IMG     = 'https://image.tmdb.org/t/p/w500';
 
+const SB = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ── TMDB GENRE IDs → nomi italiani ─────────────────────── */
+const TMDB_GENRES = {
+  28:'Azione', 12:'Avventura', 16:'Animazione', 35:'Commedia',
+  80:'Crime', 99:'Documentario', 18:'Dramma', 10751:'Famiglia',
+  14:'Fantasy', 36:'Storico', 27:'Horror', 10402:'Musicale',
+  9648:'Mistero', 10749:'Romantico', 878:'Fantascienza',
+  53:'Thriller', 10752:'Guerra', 37:'Western',
+};
+
+/* ── GENERI DISPONIBILI ──────────────────────────────────── */
 const ALL_GENRES = [
   "Animazione","Avventura","Azione","Biografico","Commedia","Commedia Nera",
   "Crime","Cyberpunk","Disastro","Dramma","Epico","Famiglia","Fantascienza",
@@ -404,238 +321,281 @@ const ALL_GENRES = [
   "Italiano","Mistero","Musicale","Noir","Psicologico","Rock",
   "Romantico","Space Opera","Sport","Spy","Storico","Supereroi","Thriller","Western"
 ];
-const GENRE_MAP = {
-  'Action':'Azione','Adventure':'Avventura','Animation':'Animazione',
-  'Biography':'Biografico','Comedy':'Commedia','Crime':'Crime',
-  'Drama':'Dramma','Family':'Famiglia','Fantasy':'Fantasy',
-  'Film-Noir':'Noir','History':'Storico','Horror':'Horror',
-  'Music':'Musicale','Musical':'Musicale','Mystery':'Mistero',
-  'Romance':'Romantico','Sci-Fi':'Fantascienza','Sport':'Sport',
-  'Thriller':'Thriller','War':'Guerra','Western':'Western',
+
+const ICONS = {
+  "Azione":"⚡","Avventura":"🗺️","Fantascienza":"🚀","Horror":"💀","Dramma":"🎭",
+  "Commedia":"😄","Thriller":"🔪","Animazione":"🎨","Storico":"📜","Fantasy":"🧙",
+  "Supereroi":"🦸","Crime":"🔫","Biografico":"📖","Guerra":"⚔️","Musicale":"🎵",
+  "Romantico":"❤️","Mistero":"🔍","Spy":"🕵️","Heist":"💰","Western":"🤠",
+  "Rock":"🎸","Psicologico":"🧠","Noir":"🎩","Epico":"🏛️"
 };
-const ICONS = {"Azione":"⚡","Avventura":"🗺️","Fantascienza":"🚀","Horror":"💀",
-  "Dramma":"🎭","Commedia":"😄","Thriller":"🔪","Animazione":"🎨","Storico":"📜",
-  "Fantasy":"🧙","Supereroi":"🦸","Crime":"🔫","Biografico":"📖","Guerra":"⚔️",
-  "Musicale":"🎵","Romantico":"❤️","Mistero":"🔍","Spy":"🕵️","Heist":"💰",
-  "Western":"🤠","Rock":"🎸","Psicologico":"🧠","Noir":"🎩","Epico":"🏛️"};
 function gIcon(g){ for(const[k,v] of Object.entries(ICONS)) if((g||'').includes(k)) return v; return '🎬'; }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* GENRE GRID */
+/* ── GENRE GRID ──────────────────────────────────────────── */
 function buildGenreGrid(){
-  const grid=document.getElementById('genreGrid');
-  ALL_GENRES.forEach(g=>{
-    const cls=g.replace(/[\s\/]/g,'');
-    const lbl=document.createElement('label');
-    lbl.className=`g-label ${cls}`;
-    lbl.innerHTML=`<input type="checkbox" value="${g}" onchange="livePreview()"><span class="g-pill">${g}</span>`;
+  const grid = document.getElementById('genreGrid');
+  ALL_GENRES.forEach(g => {
+    const cls = g.replace(/[\s\/]/g,'');
+    const lbl = document.createElement('label');
+    lbl.className = `g-label ${cls}`;
+    lbl.innerHTML = `<input type="checkbox" value="${g}" onchange="livePreview()"><span class="g-pill">${g}</span>`;
     grid.appendChild(lbl);
   });
 }
 function selectedGenres(){ return Array.from(document.querySelectorAll('#genreGrid input:checked')).map(i=>i.value); }
-function setGenres(list){ document.querySelectorAll('#genreGrid input').forEach(i=>i.checked=list.includes(i.value)); }
+function setGenres(list){ document.querySelectorAll('#genreGrid input').forEach(i => i.checked = list.includes(i.value)); }
 
-/* OMDB SEARCH */
+/* ── TMDB SEARCH ─────────────────────────────────────────── */
 let debTimer;
 function onQueryInput(){
   clearTimeout(debTimer);
-  if(document.getElementById('omdbQuery').value.trim().length>1)
-    debTimer=setTimeout(doSearch,650);
+  const q = document.getElementById('tmdbQuery').value.trim();
+  if(q.length > 1) debTimer = setTimeout(doSearch, 600);
   else closeResults();
 }
+
 async function doSearch(){
-  const q=document.getElementById('omdbQuery').value.trim();
+  const q = document.getElementById('tmdbQuery').value.trim();
   if(!q) return;
-  const btn=document.getElementById('searchBtn');
-  const icon=document.getElementById('searchIcon');
-  btn.disabled=true; icon.innerHTML='<span class="spin"></span>';
-  const res=document.getElementById('omdbResults');
-  res.innerHTML='<div class="omdb-msg"><span class="spin" style="border-top-color:var(--muted)"></span> Ricerca…</div>';
+
+  if(TMDB_KEY === 'INSERISCI_QUI_LA_TUA_CHIAVE_TMDB'){
+    showToast('⚠️ Inserisci prima la tua chiave TMDB nel file — vedi le istruzioni in fondo', 'err');
+    return;
+  }
+
+  const btn  = document.getElementById('searchBtn');
+  const icon = document.getElementById('searchIcon');
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spin"></span>';
+
+  const res = document.getElementById('tmdbResults');
+  res.innerHTML = '<div class="omdb-msg"><span class="spin" style="color:var(--muted)"></span> Ricerca in corso…</div>';
   res.classList.add('open');
+
   try{
-    const r=await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&type=movie&apikey=${OMDB_KEY}`);
-    const d=await r.json();
-    if(d.Response==='False'||!d.Search?.length){
-      res.innerHTML=`<div class="omdb-msg">Nessun risultato per "<b>${esc(q)}</b>"<br><small style="color:var(--muted)">Prova in inglese o controlla l'ortografia</small></div>`;
+    const r = await fetch(`${TMDB_BASE}/search/movie?query=${encodeURIComponent(q)}&language=it-IT&api_key=${TMDB_KEY}`);
+    const d = await r.json();
+
+    if(!d.results?.length){
+      res.innerHTML = `<div class="omdb-msg">Nessun risultato per "<b>${esc(q)}</b>"<br><small style="color:var(--muted)">Prova in inglese o con il titolo originale</small></div>`;
     } else {
-      res.innerHTML=d.Search.slice(0,8).map(m=>`
-        <div class="omdb-item" onclick="selectFilm('${m.imdbID}')">
+      res.innerHTML = d.results.slice(0,8).map(m => `
+        <div class="omdb-item" onclick="selectFilm(${m.id})">
           <div class="omdb-thumb">
-            ${m.Poster&&m.Poster!=='N/A'?`<img src="${m.Poster}" alt="" loading="lazy">`:'🎬'}
+            ${m.poster_path
+              ? `<img src="${TMDB_IMG}${m.poster_path}" alt="" loading="lazy">`
+              : '🎬'}
           </div>
           <div class="omdb-item-info">
-            <div class="omdb-item-title">${esc(m.Title)}</div>
-            <div class="omdb-item-meta">${m.Year} · ${m.imdbID}</div>
+            <div class="omdb-item-title">${esc(m.title)}</div>
+            <div class="omdb-item-meta">${(m.release_date||'').slice(0,4)} · ${m.original_title!==m.title?m.original_title:''}</div>
           </div>
           <div class="omdb-item-cta">Seleziona →</div>
         </div>`).join('');
     }
   } catch(e){
-    res.innerHTML='<div class="omdb-msg">Errore di rete — riprova</div>';
+    res.innerHTML = '<div class="omdb-msg">Errore di rete — riprova</div>';
   }
-  btn.disabled=false; icon.textContent='🔎';
+
+  btn.disabled = false;
+  icon.textContent = '🔎';
 }
-async function selectFilm(imdbId){
+
+async function selectFilm(tmdbId){
   closeResults();
-  document.getElementById('omdbQuery').value='';
+  document.getElementById('tmdbQuery').value = '';
 
-  // Mostra spinner nel badge mentre carica
+  // Mostra badge loading
   const badge = document.getElementById('fillBadge');
-  badge.style.display='block';
-  badge.querySelector('.fill-badge').innerHTML='<span class="spin" style="border-top-color:var(--green)"></span> Caricamento e traduzione…';
+  badge.style.display = 'block';
+  badge.querySelector('.fill-badge').className = 'fill-badge loading';
+  badge.querySelector('.fill-badge').innerHTML = '<span class="spin"></span> Caricamento dati in italiano…';
 
-  const r=await fetch(`https://www.omdbapi.com/?i=${imdbId}&plot=full&apikey=${OMDB_KEY}`);
-  const d=await r.json();
-  if(d.Response==='False'){ showToast('Film non trovato','err'); badge.style.display='none'; return; }
+  try{
+    // Dettagli film in italiano + crediti + ID esterni
+    const r = await fetch(
+      `${TMDB_BASE}/movie/${tmdbId}?language=it-IT&append_to_response=credits,external_ids&api_key=${TMDB_KEY}`
+    );
+    const d = await r.json();
 
-  document.getElementById('fTitle').value    = d.Title||'';
-  document.getElementById('fYear').value     = d.Year?parseInt(d.Year):'';
-  document.getElementById('fDirector').value = d.Director!=='N/A'?d.Director:'';
-  document.getElementById('fRating').value   = d.imdbRating!=='N/A'?d.imdbRating:'';
-  document.getElementById('fImdb').value     = imdbId;
+    // Titolo (italiano se disponibile, altrimenti originale)
+    document.getElementById('fTitle').value = d.title || d.original_title || '';
 
-  // Generi
-  const mapped=(d.Genre||'').split(',').map(g=>GENRE_MAP[g.trim()]).filter(Boolean);
-  setGenres(mapped);
+    // Anno
+    document.getElementById('fYear').value = d.release_date ? d.release_date.slice(0,4) : '';
 
-  // Traduzione sinossi EN → IT tramite MyMemory (gratuito, no chiave)
-  const plotEn = d.Plot!=='N/A' ? d.Plot : '';
-  if(plotEn){
-    try{
-      const tr = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(plotEn)}&langpair=en|it`);
-      const tj = await tr.json();
-      const translated = tj.responseStatus===200 ? tj.responseData.translatedText : plotEn;
-      document.getElementById('fSynopsis').value = translated;
-    } catch(e){
-      document.getElementById('fSynopsis').value = plotEn; // fallback inglese
-    }
-  } else {
-    document.getElementById('fSynopsis').value = '';
+    // Regista dai credits
+    const director = (d.credits?.crew||[]).find(p => p.job === 'Director');
+    document.getElementById('fDirector').value = director ? director.name : '';
+
+    // Sinossi in italiano
+    document.getElementById('fSynopsis').value = d.overview || '';
+
+    // IMDb ID dagli external_ids
+    document.getElementById('fImdb').value = d.external_ids?.imdb_id || '';
+
+    // Rating (TMDB usa vote_average su 10)
+    document.getElementById('fRating').value = d.vote_average ? d.vote_average.toFixed(1) : '';
+
+    // Poster URL (TMDB CDN — molto affidabile)
+    const posterUrl = d.poster_path ? `${TMDB_IMG}${d.poster_path}` : null;
+
+    // Generi: TMDB restituisce già i nomi in italiano
+    const genreNames = (d.genres||[]).map(g => TMDB_GENRES[g.id] || g.name).filter(n => ALL_GENRES.includes(n));
+    setGenres(genreNames);
+
+    // Salva il poster URL per usarlo nel salvataggio
+    window._currentPosterUrl = posterUrl;
+
+    badge.querySelector('.fill-badge').className = 'fill-badge done';
+    badge.querySelector('.fill-badge').innerHTML = `✅ Dati in italiano da TMDB — sinossi, poster e generi compilati`;
+
+    livePreview(posterUrl);
+    showToast(`✅ "${d.title}" caricato!`, 'ok');
+
+  } catch(e){
+    badge.style.display = 'none';
+    showToast('Errore nel caricamento — riprova', 'err');
   }
-
-  badge.querySelector('.fill-badge').innerHTML='✅ Dati compilati con sinossi tradotta — modifica se vuoi';
-  livePreview();
-  showToast(`✅ "${d.Title}" caricato con sinossi in italiano!`,'ok');
 }
+
 function closeResults(){
-  const r=document.getElementById('omdbResults');
-  r.classList.remove('open'); r.innerHTML='';
+  const r = document.getElementById('tmdbResults');
+  r.classList.remove('open');
+  r.innerHTML = '';
 }
-document.addEventListener('click',e=>{ if(!e.target.closest('.omdb-wrap')) closeResults(); });
+document.addEventListener('click', e => { if(!e.target.closest('.omdb-wrap')) closeResults(); });
 
-/* LIVE PREVIEW */
+/* ── LIVE PREVIEW ────────────────────────────────────────── */
 let pvTimer;
-function livePreview(){
+function livePreview(forcedPoster){
   clearTimeout(pvTimer);
-  pvTimer=setTimeout(async()=>{
+  pvTimer = setTimeout(()=>{
     const title    = document.getElementById('fTitle').value.trim();
     const director = document.getElementById('fDirector').value.trim();
     const year     = document.getElementById('fYear').value.trim();
     const rating   = document.getElementById('fRating').value.trim();
-    const imdbId   = document.getElementById('fImdb').value.trim();
     const synopsis = document.getElementById('fSynopsis').value.trim();
     const genres   = selectedGenres();
-    const pt=document.getElementById('prevTitle');
-    pt.textContent=title||'Il film apparirà qui…';
-    pt.style.color=title?'var(--text)':'var(--muted)';
-    pt.style.fontStyle=title?'normal':'italic';
-    const meta=[year,rating?'★ '+rating:null,director].filter(Boolean);
-    document.getElementById('prevMeta').textContent=meta.join(' · ');
-    const ps=document.getElementById('prevSyn');
-    if(synopsis){ ps.textContent=synopsis; ps.style.display='block'; }
-    else ps.style.display='none';
-    document.getElementById('prevTags').innerHTML=genres.map(g=>`<span class="preview-tag">${g}</span>`).join('');
-    const poster=document.getElementById('prevPoster');
-    if(imdbId&&imdbId.startsWith('tt')){
-      try{
-        const r=await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_KEY}`);
-        const d=await r.json();
-        if(d.Poster&&d.Poster!=='N/A'){ poster.innerHTML=`<img src="${d.Poster}" alt="${title}">`; return; }
-      }catch(e){}
+
+    const pt = document.getElementById('prevTitle');
+    pt.textContent   = title || 'Il film apparirà qui…';
+    pt.style.color   = title ? 'var(--text)' : 'var(--muted)';
+    pt.style.fontStyle = title ? 'normal' : 'italic';
+
+    document.getElementById('prevMeta').textContent =
+      [year, rating ? '★ '+rating : null, director].filter(Boolean).join(' · ');
+
+    const ps = document.getElementById('prevSyn');
+    if(synopsis){ ps.textContent = synopsis; ps.style.display = 'block'; }
+    else ps.style.display = 'none';
+
+    document.getElementById('prevTags').innerHTML =
+      genres.map(g => `<span class="preview-tag">${g}</span>`).join('');
+
+    // Poster
+    const poster    = document.getElementById('prevPoster');
+    const posterUrl = forcedPoster || window._currentPosterUrl;
+    if(posterUrl){
+      poster.innerHTML = `<img src="${posterUrl}" alt="${esc(title)}">`;
+    } else {
+      poster.innerHTML = genres.length ? gIcon(genres[0]) : '🎬';
     }
-    poster.innerHTML=genres.length?gIcon(genres[0]):'🎬';
-  },350);
+  }, 300);
 }
 
-/* SAVE */
+/* ── SAVE ────────────────────────────────────────────────── */
 async function saveFilm(){
-  const title=document.getElementById('fTitle').value.trim();
-  const genres=selectedGenres();
-  if(!title){ showToast('Inserisci almeno il titolo','err'); return; }
-  if(!genres.length){ showToast('Seleziona almeno un genere','err'); return; }
-  const btn=document.getElementById('btnSave');
-  const btxt=document.getElementById('btnText');
-  btn.disabled=true; btxt.innerHTML='<span class="spin"></span> Salvataggio…';
-  const imdbId=document.getElementById('fImdb').value.trim();
-  let posterUrl=null;
-  if(imdbId&&imdbId.startsWith('tt')){
-    try{
-      const r=await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_KEY}`);
-      const d=await r.json();
-      if(d.Poster&&d.Poster!=='N/A') posterUrl=d.Poster;
-    }catch(e){}
-  }
-  const payload={
-    title, genres,
-    director:   document.getElementById('fDirector').value.trim()||null,
-    year:       document.getElementById('fYear').value?parseInt(document.getElementById('fYear').value):null,
-    rating:     document.getElementById('fRating').value?parseFloat(document.getElementById('fRating').value):null,
-    synopsis:   document.getElementById('fSynopsis').value.trim()||null,
-    imdb_id:    imdbId||null,
-    poster_url: posterUrl,
+  const title  = document.getElementById('fTitle').value.trim();
+  const genres = selectedGenres();
+  if(!title)        { showToast('Inserisci almeno il titolo', 'err'); return; }
+  if(!genres.length){ showToast('Seleziona almeno un genere', 'err'); return; }
+
+  const btn  = document.getElementById('btnSave');
+  const btxt = document.getElementById('btnText');
+  btn.disabled = true;
+  btxt.innerHTML = '<span class="spin"></span> Salvataggio…';
+
+  const payload = {
+    title,
+    genres,
+    director:   document.getElementById('fDirector').value.trim() || null,
+    year:       document.getElementById('fYear').value    ? parseInt(document.getElementById('fYear').value)     : null,
+    rating:     document.getElementById('fRating').value  ? parseFloat(document.getElementById('fRating').value) : null,
+    synopsis:   document.getElementById('fSynopsis').value.trim() || null,
+    imdb_id:    document.getElementById('fImdb').value.trim() || null,
+    poster_url: window._currentPosterUrl || null,
   };
-  const{error}=await SB.from('films').insert([payload]);
-  btn.disabled=false; btxt.textContent='💾 Salva nel database';
-  if(error){ showToast('Errore: '+error.message,'err'); return; }
-  showToast(`✅ "${title}" aggiunto!`,'ok');
-  resetForm(); loadRecent();
+
+  const { error } = await SB.from('films').insert([payload]);
+  btn.disabled = false;
+  btxt.textContent = '💾 Salva nel database';
+
+  if(error){ showToast('Errore: ' + error.message, 'err'); return; }
+  showToast(`✅ "${title}" aggiunto!`, 'ok');
+  resetForm();
+  loadRecent();
 }
 
 function resetForm(){
-  ['fTitle','fDirector','fYear','fRating','fImdb','fSynopsis'].forEach(id=>document.getElementById(id).value='');
-  document.querySelectorAll('#genreGrid input').forEach(i=>i.checked=false);
-  document.getElementById('fillBadge').style.display='none';
-  const pt=document.getElementById('prevTitle');
-  pt.textContent='Il film apparirà qui…'; pt.style.color='var(--muted)'; pt.style.fontStyle='italic';
-  document.getElementById('prevMeta').textContent='';
-  document.getElementById('prevSyn').style.display='none';
-  document.getElementById('prevTags').innerHTML='';
-  document.getElementById('prevPoster').innerHTML='🎬';
+  ['fTitle','fDirector','fYear','fRating','fImdb','fSynopsis'].forEach(id =>
+    document.getElementById(id).value = '');
+  document.querySelectorAll('#genreGrid input').forEach(i => i.checked = false);
+  window._currentPosterUrl = null;
+  document.getElementById('fillBadge').style.display = 'none';
+  const pt = document.getElementById('prevTitle');
+  pt.textContent = 'Il film apparirà qui…';
+  pt.style.color = 'var(--muted)';
+  pt.style.fontStyle = 'italic';
+  document.getElementById('prevMeta').textContent = '';
+  document.getElementById('prevSyn').style.display = 'none';
+  document.getElementById('prevTags').innerHTML = '';
+  document.getElementById('prevPoster').innerHTML = '🎬';
 }
 
-/* RECENT */
+/* ── RECENT ──────────────────────────────────────────────── */
 async function loadRecent(){
-  const list=document.getElementById('recentList');
-  const{data,error}=await SB.from('films').select('id,title,year,director,genres,poster_url').order('created_at',{ascending:false}).limit(12);
-  if(error||!data?.length){ list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0">Nessun film trovato</div>'; return; }
-  list.innerHTML=data.map(f=>`
+  const list = document.getElementById('recentList');
+  const { data, error } = await SB.from('films')
+    .select('id,title,year,director,genres,poster_url')
+    .order('created_at', {ascending:false}).limit(12);
+  if(error || !data?.length){
+    list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px 0">Nessun film trovato</div>';
+    return;
+  }
+  list.innerHTML = data.map(f => `
     <div class="recent-item" id="ri-${f.id}">
       <div class="recent-thumb">
-        ${f.poster_url?`<img src="${f.poster_url}" alt="${esc(f.title)}">`:`${gIcon((f.genres||[])[0]||'')}`}
+        ${f.poster_url ? `<img src="${f.poster_url}" alt="${esc(f.title)}">` : gIcon((f.genres||[])[0]||'')}
       </div>
       <div class="recent-info">
         <div class="recent-title">${esc(f.title)}</div>
-        <div class="recent-meta">${[f.year,f.director].filter(Boolean).join(' · ')}</div>
+        <div class="recent-meta">${[f.year, f.director].filter(Boolean).join(' · ')}</div>
       </div>
-      <button class="recent-del" onclick="deleteFilm(${f.id},'${esc(f.title)}')">🗑 Elimina</button>
+      <button class="recent-del" onclick="deleteFilm(${f.id}, '${esc(f.title)}')">🗑 Elimina</button>
     </div>`).join('');
 }
-async function deleteFilm(id,title){
+
+async function deleteFilm(id, title){
   if(!confirm(`Eliminare "${title}"? Azione irreversibile.`)) return;
-  const{error}=await SB.from('films').delete().eq('id',id);
-  if(error){ showToast('Errore: '+error.message,'err'); return; }
+  const { error } = await SB.from('films').delete().eq('id', id);
+  if(error){ showToast('Errore: '+error.message, 'err'); return; }
   document.getElementById('ri-'+id)?.remove();
-  showToast(`🗑 "${title}" eliminato`,'ok');
+  showToast(`🗑 "${title}" eliminato`, 'ok');
 }
 
-/* TOAST */
+/* ── TOAST ───────────────────────────────────────────────── */
 let toastTimer;
-function showToast(msg,type='ok'){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=`toast ${type} show`;
+function showToast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),4000);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
 }
+
+/* ── INIT ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => { buildGenreGrid(); loadRecent(); });
 </script>
 </body>
 </html>
