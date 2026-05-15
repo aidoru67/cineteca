@@ -478,20 +478,44 @@ async function doSearch(){
 async function selectFilm(imdbId){
   closeResults();
   document.getElementById('omdbQuery').value='';
+
+  // Mostra spinner nel badge mentre carica
+  const badge = document.getElementById('fillBadge');
+  badge.style.display='block';
+  badge.querySelector('.fill-badge').innerHTML='<span class="spin" style="border-top-color:var(--green)"></span> Caricamento e traduzione…';
+
   const r=await fetch(`https://www.omdbapi.com/?i=${imdbId}&plot=full&apikey=${OMDB_KEY}`);
   const d=await r.json();
-  if(d.Response==='False'){ showToast('Film non trovato','err'); return; }
+  if(d.Response==='False'){ showToast('Film non trovato','err'); badge.style.display='none'; return; }
+
   document.getElementById('fTitle').value    = d.Title||'';
   document.getElementById('fYear').value     = d.Year?parseInt(d.Year):'';
   document.getElementById('fDirector').value = d.Director!=='N/A'?d.Director:'';
   document.getElementById('fRating').value   = d.imdbRating!=='N/A'?d.imdbRating:'';
   document.getElementById('fImdb').value     = imdbId;
-  document.getElementById('fSynopsis').value = d.Plot!=='N/A'?d.Plot:'';
+
+  // Generi
   const mapped=(d.Genre||'').split(',').map(g=>GENRE_MAP[g.trim()]).filter(Boolean);
   setGenres(mapped);
-  document.getElementById('fillBadge').style.display='block';
+
+  // Traduzione sinossi EN → IT tramite MyMemory (gratuito, no chiave)
+  const plotEn = d.Plot!=='N/A' ? d.Plot : '';
+  if(plotEn){
+    try{
+      const tr = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(plotEn)}&langpair=en|it`);
+      const tj = await tr.json();
+      const translated = tj.responseStatus===200 ? tj.responseData.translatedText : plotEn;
+      document.getElementById('fSynopsis').value = translated;
+    } catch(e){
+      document.getElementById('fSynopsis').value = plotEn; // fallback inglese
+    }
+  } else {
+    document.getElementById('fSynopsis').value = '';
+  }
+
+  badge.querySelector('.fill-badge').innerHTML='✅ Dati compilati con sinossi tradotta — modifica se vuoi';
   livePreview();
-  showToast(`✅ "${d.Title}" caricato!`,'ok');
+  showToast(`✅ "${d.Title}" caricato con sinossi in italiano!`,'ok');
 }
 function closeResults(){
   const r=document.getElementById('omdbResults');
