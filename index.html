@@ -91,30 +91,26 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--bg);
     border-bottom: 1px solid var(--border);
-    padding: 1rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
     backdrop-filter: blur(12px);
-    background: rgba(10,10,12,.92);
+    background: rgba(10,10,12,.94);
   }
 
-  .search-row {
+  /* top bar: always visible */
+  .controls-bar {
+    padding: .75rem 1rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: .6rem;
   }
 
   .search-wrap {
     position: relative;
     flex: 1;
-    max-width: 480px;
   }
   .search-wrap svg {
     position: absolute;
-    left: .9rem;
+    left: .75rem;
     top: 50%;
     transform: translateY(-50%);
     opacity: .35;
@@ -127,35 +123,83 @@
     border-radius: var(--radius);
     color: var(--text);
     font-family: var(--font-mono);
-    font-size: .8rem;
-    padding: .6rem .9rem .6rem 2.4rem;
+    font-size: .85rem;
+    padding: .55rem .75rem .55rem 2.2rem;
     outline: none;
     transition: border-color var(--transition);
     appearance: none;
+    -webkit-appearance: none;
   }
   input[type="search"]:focus { border-color: var(--accent); }
   input[type="search"]::placeholder { color: var(--muted); }
 
+  /* genre toggle pill */
+  .genre-toggle {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    letter-spacing: .05em;
+    padding: .55rem .75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all var(--transition);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .genre-toggle.has-active { border-color: var(--accent); color: var(--accent); }
+  .genre-toggle .arrow { transition: transform var(--transition); display: inline-block; }
+  .genre-toggle.open .arrow { transform: rotate(180deg); }
+  .genre-badge {
+    background: var(--accent);
+    color: #000;
+    border-radius: 10px;
+    font-size: .6rem;
+    padding: .05rem .35rem;
+    display: none;
+  }
+  .genre-toggle.has-active .genre-badge { display: inline; }
+
   .count {
     font-family: var(--font-mono);
-    font-size: .72rem;
+    font-size: .68rem;
     color: var(--muted);
     white-space: nowrap;
+    flex-shrink: 0;
   }
   .count span { color: var(--accent); }
 
-  /* ── TAGS ── */
-  .tags-scroll {
+  /* tags panel — collapsible on all sizes, but auto-open on desktop */
+  .tags-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .3s cubic-bezier(.4,0,.2,1), padding .3s;
+    padding: 0 1rem;
+  }
+  .tags-panel.open {
+    max-height: 600px;
+    padding: 0 1rem .75rem;
+  }
+  .tags-inner {
     display: flex;
     flex-wrap: wrap;
     gap: .4rem;
+    padding-top: .5rem;
+    border-top: 1px solid var(--border);
   }
+
+  /* ── TAGS ── */
   .tag {
     font-family: var(--font-mono);
-    font-size: .65rem;
+    font-size: .62rem;
     letter-spacing: .05em;
     text-transform: uppercase;
-    padding: .25rem .65rem;
+    padding: .3rem .65rem;
     border-radius: 2px;
     border: 1px solid var(--border);
     background: var(--tag-bg);
@@ -164,19 +208,15 @@
     transition: all var(--transition);
     user-select: none;
     white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
   }
-  .tag:hover { color: var(--text); border-color: var(--muted); }
-  .tag.active {
-    background: var(--tag-active);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .tag-clear {
-    background: transparent;
-    border-color: #333;
-    color: var(--muted);
-  }
-  .tag-clear:hover { border-color: #777; color: var(--text); }
+  .tag:hover  { color: var(--text); border-color: var(--muted); }
+  .tag.active { background: var(--tag-active); border-color: var(--accent); color: var(--accent); }
+  .tag-clear  { background: transparent; border-color: #2a2a2a; color: var(--muted); }
+  .tag-clear:hover { border-color: #555; color: var(--text); }
 
   /* ── GRID ── */
   main {
@@ -333,13 +373,13 @@
     display: flex;
     flex-direction: column;
     gap: .75rem;
+    min-width: 0;
   }
   .modal-title {
     font-size: 1.5rem;
     font-weight: 400;
     line-height: 1.2;
   }
-  .modal-title em { font-style: italic; color: var(--accent); }
   .modal-director {
     font-family: var(--font-mono);
     font-size: .72rem;
@@ -360,6 +400,7 @@
     text-transform: uppercase;
     cursor: pointer;
     transition: all var(--transition);
+    -webkit-tap-highlight-color: transparent;
   }
   .modal-tag:hover { border-color: var(--accent); color: var(--accent); }
   .modal-synopsis {
@@ -382,6 +423,7 @@
     margin-top: auto;
     transition: all var(--transition);
     text-transform: uppercase;
+    -webkit-tap-highlight-color: transparent;
   }
   .modal-close:hover { border-color: var(--muted); color: var(--text); }
 
@@ -402,12 +444,69 @@
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  @media (max-width: 600px) {
-    h1 { font-size: 2rem; }
-    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .75rem; }
-    main { padding: 1rem; }
-    .modal { flex-direction: column; }
-    .modal-poster, .modal-no-poster { width: 100%; min-width: unset; height: 220px; border-radius: var(--radius) var(--radius) 0 0; }
+  /* ══════════════════════════════════
+     DESKTOP: tags panel auto-aperto
+  ══════════════════════════════════ */
+  @media (min-width: 641px) {
+    .controls-bar { padding: .85rem 2rem; }
+    .tags-panel.open { padding: 0 2rem .85rem; }
+    .genre-toggle { font-size: .7rem; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    main { padding: 2rem; }
+  }
+
+  /* ══════════════════════════════════
+     MOBILE
+  ══════════════════════════════════ */
+  @media (max-width: 640px) {
+
+    header { padding: 1.75rem 1rem 1.25rem; }
+    h1 { font-size: 1.9rem; }
+    .eyebrow { font-size: .58rem; margin-bottom: .5rem; }
+    .subtitle { font-size: .65rem; }
+
+    main { padding: .6rem; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+
+    .card-body { padding: .55rem .6rem .65rem; }
+    .card-title { font-size: .82rem; }
+    .card-meta  { font-size: .58rem; gap: .3rem; }
+    .card-genres { display: none; }
+
+    /* Modal → bottom sheet */
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .modal {
+      flex-direction: column;
+      max-width: 100%;
+      max-height: 88vh;
+      border-radius: 16px 16px 0 0;
+      border-bottom: none;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal::before {
+      content: '';
+      display: block;
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: .65rem auto 0;
+      flex-shrink: 0;
+    }
+    .modal-poster {
+      width: 100%; min-width: unset;
+      height: 220px;
+      object-fit: cover; object-position: center top;
+      border-radius: 0; flex-shrink: 0;
+    }
+    .modal-no-poster {
+      width: 100%; min-width: unset;
+      height: 100px; border-radius: 0;
+    }
+    .modal-content { padding: 1.1rem 1.1rem 1.75rem; gap: .6rem; }
+    .modal-title { font-size: 1.2rem; }
+    .modal-close { align-self: stretch; text-align: center; padding: .8rem; font-size: .7rem; }
   }
 </style>
 </head>
@@ -420,16 +519,21 @@
 </header>
 
 <div class="controls">
-  <div class="search-row">
+  <div class="controls-bar">
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="search" id="search" placeholder="Cerca titolo, regista, sinossi…" autocomplete="off">
+      <input type="search" id="search" placeholder="Cerca titolo, regista…" autocomplete="off">
     </div>
+    <button class="genre-toggle" id="genre-toggle" onclick="togglePanel()">
+      Generi <span class="arrow">▾</span><span class="genre-badge" id="genre-badge">0</span>
+    </button>
     <span class="count" id="count"><span>0</span> film</span>
   </div>
-  <div class="tags-scroll" id="tags"></div>
+  <div class="tags-panel" id="tags-panel">
+    <div class="tags-inner" id="tags"></div>
+  </div>
 </div>
 
 <main>
@@ -504,12 +608,35 @@ function buildTags() {
     };
     container.appendChild(btn);
   });
+
+  // Auto-apri su desktop
+  if (window.innerWidth >= 641) openPanel();
 }
 
 function updateTagUI() {
   document.querySelectorAll('.tag[data-genre]').forEach(b => {
     b.classList.toggle('active', activeGenres.has(b.dataset.genre));
   });
+  const n = activeGenres.size;
+  const toggle = document.getElementById('genre-toggle');
+  const badge  = document.getElementById('genre-badge');
+  toggle.classList.toggle('has-active', n > 0);
+  badge.textContent = n;
+}
+
+// ── Panel toggle ──
+function openPanel() {
+  const panel  = document.getElementById('tags-panel');
+  const toggle = document.getElementById('genre-toggle');
+  panel.classList.add('open');
+  toggle.classList.add('open');
+}
+
+function togglePanel() {
+  const panel  = document.getElementById('tags-panel');
+  const toggle = document.getElementById('genre-toggle');
+  panel.classList.toggle('open');
+  toggle.classList.toggle('open');
 }
 
 // ── Filter ──
