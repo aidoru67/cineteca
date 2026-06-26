@@ -158,7 +158,7 @@ const TYPE_LABELS={Lavoro:'Lavoro',Riposo:'Riposo','Riposo Feriale':'Riposo feri
 const MESI_IT=['','Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 let months={}, charts={};
 
-function n(v){const x=parseFloat(String(v||'').replace(',','.'));return isNaN(x)?0:x;}
+function n(v){const x=parseFloat(String(v||'').replace(/[€\s]/g,'').replace(/\./g,'').replace(',','.'));return isNaN(x)?0:x;}
 
 function getField(r,...keys){
   const rk=Object.keys(r).map(k=>k.toLowerCase().replace(/\s|\n/g,''));
@@ -169,25 +169,54 @@ function getField(r,...keys){
   return '';
 }
 
-function splitCSVLine(line,sep){
-  const res=[];let cur='';let inQ=false;
-  for(const c of line){
-    if(c==='"'){inQ=!inQ}else if(c===sep&&!inQ){res.push(cur);cur='';}else cur+=c;
+function parseCSVFull(text){
+  // Handles: multiline quoted fields, 
+, BOM, comma/semicolon separators
+  const result=[];
+  let field='',row=[],inQ=false;
+  const t=text.replace(/^﻿/,'');  // strip BOM
+  for(let i=0;i<t.length;i++){
+    const c=t[i],nx=t[i+1];
+    if(inQ){
+      if(c==='"'&&nx==='"'){field+='"';i++;}
+      else if(c==='"'){inQ=false;}
+      else{field+=c;}
+    } else {
+      if(c==='"'){inQ=true;}
+      else if(c===','||c===';'){row.push(field);field='';}
+      else if(c==='\r'&&nx==='\n'){row.push(field);field='';result.push(row);row=[];i++;}
+      else if(c==='\n'||c==='\r'){row.push(field);field='';result.push(row);row='';}
+      else{field+=c;}
+    }
   }
-  res.push(cur);return res;
+  if(field||row.length){row.push(field);result.push(row);}
+  return result;
 }
 
 function parseCSV(text){
-  const lines=text.split(/\r?\n/).filter(l=>l.trim());
-  if(!lines.length)return[];
-  const sep=lines[0].includes(';')?';':',';
-  const hdr=splitCSVLine(lines[0],sep).map(h=>h.replace(/"/g,'').trim());
+  const rawRows=parseCSVFull(text);
+  if(!rawRows.length)return[];
+
+  // Skip title row(s): find header row (contains "Data" or "ID Evento")
+  let hdrIdx=0;
+  for(let i=0;i<Math.min(5,rawRows.length);i++){
+    const joined=rawRows[i].join('').toLowerCase();
+    if(joined.includes('data')&&joined.includes('giorno')){hdrIdx=i;break;}
+  }
+  // Normalize headers: replace internal newlines with space, strip quotes/whitespace
+  const hdr=rawRows[hdrIdx].map(h=>h.replace(/\n/g,' ').replace(/"/g,'').trim());
+
   const rows=[];
-  for(let i=1;i<lines.length;i++){
-    const vals=splitCSVLine(lines[i],sep);
-    if(vals.length<4)continue;
+  for(let i=hdrIdx+1;i<rawRows.length;i++){
+    const vals=rawRows[i];
+    if(!vals||vals.length<4)continue;
     const obj={};
-    hdr.forEach((h,j)=>obj[h]=(vals[j]||'').replace(/"/g,'').trim());
+    hdr.forEach((h,j)=>{
+      let v=(vals[j]||'').replace(/"/g,'').trim();
+      obj[h]=v;
+    });
+    // Skip if no ID (empty/totals rows)
+    if(!obj['ID Evento']||!obj['ID Evento'].startsWith('turni_'))continue;
     rows.push(obj);
   }
   return rows;
