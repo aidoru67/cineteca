@@ -1,0 +1,3 @@
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+const TMDB = Deno.env.get("TMDB_ACCESS_TOKEN")!;
+serve(async (req) => { try { const { title } = await req.json(); if (!title) return Response.json({ error:"Missing title" },{status:400}); const res=await fetch(`https://api.themoviedb.org/3/search/movie?language=it-IT&query=${encodeURIComponent(title)}`,{headers:{Authorization:`Bearer ${TMDB}`}}); const data=await res.json(); return Response.json((data.results||[]).map((m:any)=>({tmdb_id:m.id,title:m.title,year:m.release_date?Number(m.release_date.slice(0,4)):null,poster_url:m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:null}))); } catch(e:any){return Response.json({error:e.message},{status:500})} });
