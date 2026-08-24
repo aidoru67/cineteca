@@ -1,4 +1,18 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const URL=Deno.env.get("SUPABASE_URL")!,KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;const db=createClient(URL,KEY);
-serve(async(req)=>{try{const body=await req.json().catch(()=>({}));const limit=Math.min(Math.max(Number(body.limit)||25,1),50);const offset=Math.max(Number(body.offset)||0,0);const {data:batch,error}=await db.rpc("get_tmdb_batch",{p_limit:limit,p_offset:offset});if(error)throw error;if(!batch?.length)return Response.json({completed:true,updated:0,processed:0,next_offset:offset,errors:[]});let updated=0;const errors:any[]=[];for(const movie of batch){try{const res=await fetch(`${URL}/functions/v1/refresh-film`,{method:"POST",headers:{Authorization:`Bearer ${KEY}`,"Content-Type":"application/json"},body:JSON.stringify({tmdb_id:movie.tmdb_id})});if(!res.ok)throw new Error(await res.text());updated++;}catch(e:any){errors.push({tmdb_id:movie.tmdb_id,error:e.message})}}return Response.json({completed:batch.length<limit,updated,processed:batch.length,next_offset:offset+batch.length,errors});}catch(e:any){return Response.json({error:e.message},{status:500})}});
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+};
+
+function json(data: unknown, init: ResponseInit = {}) {
+  return Response.json(data, {
+    ...init,
+    headers: { ...corsHeaders, ...(init.headers || {}) }
+  });
+}
+
+serve(async(req)=>{if(req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });try{const body=await req.json().catch(()=>({}));const limit=Math.min(Math.max(Number(body.limit)||25,1),50);const offset=Math.max(Number(body.offset)||0,0);const {data:batch,error}=await db.rpc("get_tmdb_batch",{p_limit:limit,p_offset:offset});if(error)throw error;if(!batch?.length)return json({completed:true,updated:0,processed:0,next_offset:offset,errors:[]});let updated=0;const errors:any[]=[];for(const movie of batch){try{const res=await fetch(`${URL}/functions/v1/refresh-film`,{method:"POST",headers:{Authorization:`Bearer ${KEY}`,"Content-Type":"application/json"},body:JSON.stringify({tmdb_id:movie.tmdb_id})});if(!res.ok)throw new Error(await res.text());updated++;}catch(e:any){errors.push({tmdb_id:movie.tmdb_id,error:e.message})}}return json({completed:batch.length<limit,updated,processed:batch.length,next_offset:offset+batch.length,errors});}catch(e:any){return json({error:e.message},{status:500})}});
