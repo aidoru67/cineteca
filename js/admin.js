@@ -29,14 +29,19 @@ export function initAdmin(reloadFn) {
     showToast('Catalogo aggiornato');
   });
   document.getElementById('admin-login-form').addEventListener('submit', handleLogin);
-  document.getElementById('admin-logout').addEventListener('click', () => { api.adminLogout(); showLogin(); });
+  document.getElementById('admin-logout').addEventListener('click', async () => { try { await api.adminLogout(); } finally { showLogin(); } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 }
 
-function open() {
+async function open() {
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
-  if (api.isAdminAuthenticated()) showContent(); else showLogin();
+  try {
+    const session = await api.getAdminSession();
+    if (session?.access_token) showContent(); else showLogin();
+  } catch {
+    showLogin();
+  }
 }
 
 function close() {
@@ -81,9 +86,9 @@ async function handleLogin(event) {
   }
 }
 
-function handleAuthError(e) {
+async function handleAuthError(e) {
   if (e?.status === 401) {
-    api.adminLogout();
+    try { await api.adminLogout(); } catch {}
     showLogin('Sessione scaduta. Effettua nuovamente l’accesso.');
     return true;
   }
@@ -123,7 +128,7 @@ async function refreshOne(movie, row) {
     renderCatalogAdmin();
     showToast(`${movie.title} aggiornato`);
   } catch (e) {
-    if (!handleAuthError(e)) showToast(`Errore: ${e.message}`, 5000);
+    if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
     btn.disabled = false; btn.textContent = '↻';
   }
 }
@@ -148,7 +153,7 @@ async function search() {
       box.appendChild(row);
     });
   } catch (e) {
-    if (!handleAuthError(e)) box.innerHTML = `<div class="admin-note">Errore: ${esc(e.message)}</div>`;
+    if (!(await handleAuthError(e))) box.innerHTML = `<div class="admin-note">Errore: ${esc(e.message)}</div>`;
   }
 }
 
@@ -162,7 +167,7 @@ async function add(movie, row) {
       await reloadCatalog(); renderCatalogAdmin(); btn.textContent = '✓';
     } else { showToast('Film già presente'); btn.textContent = '↻'; btn.disabled = false; }
   } catch (e) {
-    if (!handleAuthError(e)) showToast(`Errore: ${e.message}`, 5000);
+    if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
     btn.disabled = false; btn.textContent = '+';
   }
 }
@@ -187,6 +192,6 @@ async function refreshAll() {
     setProgress(total, total, `Aggiornamento completato: ${processed} film`);
     showToast(`Aggiornamento completato: ${processed} film`);
   } catch (e) {
-    if (!handleAuthError(e)) showToast(`Aggiornamento interrotto: ${e.message}`, 5000);
+    if (!(await handleAuthError(e))) showToast(`Aggiornamento interrotto: ${e.message}`, 5000);
   } finally { btn.disabled = false; }
 }

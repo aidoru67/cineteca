@@ -1,21 +1,32 @@
 import { CONFIG } from './config.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-let adminAccessToken = sessionStorage.getItem('cineteca_admin_access_token') || '';
-
-const headers = (options = {}) => ({
-  apikey: CONFIG.supabaseAnonKey,
-  Authorization: `Bearer ${adminAccessToken || CONFIG.supabaseAnonKey}`,
-  'Content-Type': 'application/json',
-  ...(options.headers || {})
+export const supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false
+  }
 });
 
+async function getAuthHeaders(extra = {}) {
+  const { data: { session } } = await supabase.auth.getSession();
+  return {
+    apikey: CONFIG.supabaseAnonKey,
+    Authorization: `Bearer ${session?.access_token || CONFIG.supabaseAnonKey}`,
+    'Content-Type': 'application/json',
+    ...extra
+  };
+}
+
 async function request(url, options = {}) {
-  const response = await fetch(url, { ...options, headers: headers(options) });
+  const authHeaders = await getAuthHeaders(options.headers || {});
+  const response = await fetch(url, { ...options, headers: authHeaders });
   const text = await response.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
   if (!response.ok) {
-    const error = new Error(data?.error || data?.message || `HTTP ${response.status}`);
+    const error = new Error(data?.error || data?.message || data?.error_description || `HTTP ${response.status}`);
     error.status = response.status;
     throw error;
   }
@@ -43,39 +54,31 @@ export async function refreshAllBatch(offset = 0, limit = CONFIG.batchSize) {
 }
 
 export async function adminLogin(email, password) {
-  const response = await fetch(`${CONFIG.supabaseUrl}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: {
-      apikey: CONFIG.supabaseAnonKey,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email, password })
-  });
-
-  const text = await response.text();
-  let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-
-  if (!response.ok) {
-    throw new Error(data?.error_description || data?.msg || data?.message || 'Credenziali non valide');
-  }
-
-  if (!data?.access_token) throw new Error('Supabase non ha restituito una sessione valida');
-
-  adminAccessToken = data.access_token;
-  sessionStorage.setItem('cineteca_admin_access_token', adminAccessToken);
-  if (data.refresh_token) sessionStorage.setItem('cineteca_admin_refresh_token', data.refresh_token);
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  if (!data?.session?.access_token) throw new Error('Supabase non ha restituito una sessione valida');
   return data;
 }
 
-export function adminLogout() {
-  adminAccessToken = '';
-  sessionStorage.removeItem('cineteca_admin_access_token');
-  sessionStorage.removeItem('cineteca_admin_refresh_token');
+export async function adminLogout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+export async function getAdminSession() {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return session;
+}
+
+export async function refreshAdminSession() {
+  const { data: { session }, error } = await supabase.auth.refreshSession();
+  if (error) throw error;
+  return session;
 }
 
 export function isAdminAuthenticated() {
-  return Boolean(adminAccessToken);
+  return Boolean(supabase.auth.getSession);
 }
 
 export function getPublicConfig() { return CONFIG; }

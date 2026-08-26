@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.0-alpha.5
+- Replaced the manual Supabase Auth REST login with the official `@supabase/supabase-js` client.
+- Added persistent Auth session management with automatic token refresh.
+- Admin API calls now read the current Supabase Auth session token directly.
+- Improved session-expiration handling.
+- Login errors are surfaced directly in the Admin panel.
+
 ## v1.0.0-alpha.4
 - Added Supabase Auth protection for the Admin panel.
 - Admin panel now requires email + password authentication.
