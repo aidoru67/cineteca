@@ -29,3 +29,7 @@
 - Priorità a corrispondenza esatta del titolo, titolo originale e anno.
 - Popolarità usata come tie-breaker.
 - Evidenziato il candidato consigliato.
+
+## 1.1.0-alpha.2
+- Added duplicate detection by normalized title + year and duplicate TMDb ID.
+- Added confirmation-based deletion from the Admin panel for duplicate cleanup.

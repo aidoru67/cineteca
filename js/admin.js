@@ -23,6 +23,7 @@ export function initAdmin(reloadFn) {
   document.getElementById('tmdb-search').addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
   document.getElementById('catalog-filter').addEventListener('input', renderCatalogAdmin);
   document.getElementById('refresh-all-btn').addEventListener('click', refreshAll);
+  document.getElementById('duplicate-scan-btn').addEventListener('click', scanDuplicates);
   document.getElementById('bulk-import-btn').addEventListener('click', bulkImport);
   document.getElementById('bulk-import-clear').addEventListener('click', clearBulkImport);
   document.getElementById('reload-btn').addEventListener('click', async () => {
@@ -132,6 +133,99 @@ async function refreshOne(movie, row) {
   } catch (e) {
     if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
     btn.disabled = false; btn.textContent = '↻';
+  }
+}
+
+
+function normalizeDuplicateText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function scanDuplicates() {
+  const box = document.getElementById('duplicate-results');
+  const summary = document.getElementById('duplicate-summary');
+  const catalog = getCatalog();
+  const groups = new Map();
+
+  catalog.forEach(movie => {
+    const key = `${normalizeDuplicateText(movie.title)}::${movie.year || ''}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(movie);
+  });
+
+  const duplicateGroups = [...groups.values()].filter(group => group.length > 1);
+  const tmdbMap = new Map();
+  catalog.forEach(movie => {
+    if (!movie.tmdb_id) return;
+    const key = String(movie.tmdb_id);
+    if (!tmdbMap.has(key)) tmdbMap.set(key, []);
+    tmdbMap.get(key).push(movie);
+  });
+  const tmdbDuplicates = [...tmdbMap.values()].filter(group => group.length > 1);
+
+  box.innerHTML = '';
+  const totalIssues = duplicateGroups.length + tmdbDuplicates.length;
+  summary.textContent = totalIssues ? `${totalIssues} gruppi da verificare` : 'Nessun duplicato rilevato';
+
+  if (!totalIssues) {
+    box.innerHTML = '<div class="admin-note duplicate-clean">✓ Il catalogo non presenta duplicati evidenti per titolo/anno o TMDb ID.</div>';
+    return;
+  }
+
+  const seen = new Set();
+  duplicateGroups.forEach(group => {
+    const signature = group.map(m => m.id).sort().join(',');
+    seen.add(signature);
+    box.appendChild(buildDuplicateGroup('Titolo + anno', group));
+  });
+  tmdbDuplicates.forEach(group => {
+    const signature = group.map(m => m.id).sort().join(',');
+    if (seen.has(signature)) return;
+    box.appendChild(buildDuplicateGroup('Stesso TMDb ID', group));
+  });
+}
+
+function buildDuplicateGroup(reason, movies) {
+  const group = document.createElement('div');
+  group.className = 'duplicate-group';
+  group.innerHTML = `<div class="duplicate-head"><div><strong>${esc(reason)}</strong><span>${movies.length} record</span></div></div><div class="duplicate-list"></div>`;
+  const list = group.querySelector('.duplicate-list');
+  movies.forEach((movie, index) => {
+    const row = document.createElement('div');
+    row.className = 'duplicate-row';
+    const recommended = index === 0 && movie.poster_url && movie.synopsis && movie.tmdb_id;
+    row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div class="duplicate-info"><strong>${esc(movie.title)}</strong><span>ID ${movie.id} · ${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</span></div><div class="duplicate-actions">${recommended ? '<span class="duplicate-keep">Conserva</span>' : ''}<button class="admin-btn danger" type="button">Elimina</button></div>`;
+    row.querySelector('button').addEventListener('click', () => deleteDuplicate(movie, row, group));
+    list.appendChild(row);
+  });
+  return group;
+}
+
+async function deleteDuplicate(movie, row, group) {
+  const ok = window.confirm(`Eliminare definitivamente \"${movie.title}\" (record ID ${movie.id})?`);
+  if (!ok) return;
+  const btn = row.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    await api.deleteFilm(movie.id);
+    await reloadCatalog();
+    renderCatalogAdmin();
+    row.remove();
+    if (!group.querySelector('.duplicate-row')) group.remove();
+    showToast(`${movie.title} eliminato`);
+    const remaining = document.querySelectorAll('.duplicate-group').length;
+    document.getElementById('duplicate-summary').textContent = remaining ? `${remaining} gruppi da verificare` : 'Nessun duplicato rilevato';
+  } catch (e) {
+    if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
+    btn.disabled = false;
+    btn.textContent = 'Elimina';
   }
 }
 

@@ -82,3 +82,7 @@ export function isAdminAuthenticated() {
 }
 
 export function getPublicConfig() { return CONFIG; }
+
+export async function deleteFilm(id) {
+  return request(`${CONFIG.supabaseUrl}/functions/v1/delete-film`, { method:'POST', body:JSON.stringify({ id }) });
+}
