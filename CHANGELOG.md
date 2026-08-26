@@ -1,17 +1,8 @@
 # Changelog
 
-## 1.0.0-alpha.1
-- Added Admin catalog management list.
-- Added individual film refresh from the Admin panel.
-- TMDb search now switches from `+` to `↻` for films already present.
-- Added catalog filtering inside Admin.
-- Catalog refresh and statistics stay synchronized after Admin operations.
-## 1.0.0-alpha.2
-- Updated the film detail card to show the original title when available.
-- Added clearly labeled year, runtime, and director metadata.
-- Kept the existing TMDb poster URLs and Supabase data model unchanged.
-
-## 1.0.0-alpha.3
-- Made the film detail card elastic in height.
-- Poster images now preserve their full aspect ratio instead of being cropped.
-- Increased desktop poster width and added responsive tablet/mobile sizing.
+## v1.0.0-alpha.4
+- Added Supabase Auth protection for the Admin panel.
+- Admin panel now requires email + password authentication.
+- Admin access token is kept only in sessionStorage and is never written to the repository.
+- API calls to Edge Functions use the authenticated Admin session token.
+- Added Admin logout and expired-session handling.
