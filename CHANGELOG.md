@@ -10,3 +10,8 @@
 - Updated the film detail card to show the original title when available.
 - Added clearly labeled year, runtime, and director metadata.
 - Kept the existing TMDb poster URLs and Supabase data model unchanged.
+
+## 1.0.0-alpha.3
+- Made the film detail card elastic in height.
+- Poster images now preserve their full aspect ratio instead of being cropped.
+- Increased desktop poster width and added responsive tablet/mobile sizing.
