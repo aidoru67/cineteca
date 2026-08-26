@@ -69,7 +69,16 @@ export function openModal(f) {
   const genres=(f.genres||[]).map(g=>`<button class="modal-tag" type="button" data-genre="${esc(g)}">${esc(g)}</button>`).join('');
   const poster=f.poster_url?`<img class="modal-poster" src="${esc(f.poster_url)}" alt="${esc(f.title)}">`:`<div class="modal-no-poster"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>`;
   const modal=document.getElementById('modal');
-  modal.innerHTML=`${poster}<div class="modal-content"><h2 id="modal-title" class="modal-title">${esc(f.title)}</h2><p class="modal-director">${f.year?`<span>${f.year}</span>`:''}${f.director?` · ${esc(f.director)}`:''}${f.runtime?` · ${f.runtime} min`:''}</p>${genres?`<div class="modal-tags">${genres}</div>`:''}${f.synopsis?`<p class="modal-synopsis">${esc(f.synopsis)}</p>`:''}<button class="modal-close" type="button">Chiudi</button></div>`;
+  const originalTitle = f.original_title && f.original_title !== f.title
+    ? `<div class="modal-original-title"><span class="modal-label">Titolo originale</span><em>${esc(f.original_title)}</em></div>`
+    : '';
+  const duration = f.runtime
+    ? `<div class="modal-info"><span class="modal-label">Durata</span><span>${f.runtime} min</span></div>`
+    : '';
+  const year = f.year ? `<div class="modal-info"><span class="modal-label">Anno</span><span>${f.year}</span></div>` : '';
+  const director = f.director ? `<div class="modal-info"><span class="modal-label">Regia</span><span>${esc(f.director)}</span></div>` : '';
+
+  modal.innerHTML=`${poster}<div class="modal-content"><h2 id="modal-title" class="modal-title">${esc(f.title)}</h2>${originalTitle}<div class="modal-details">${year}${duration}${director}</div>${genres?`<div class="modal-tags">${genres}</div>`:''}${f.synopsis?`<p class="modal-synopsis">${esc(f.synopsis)}</p>`:''}<button class="modal-close" type="button">Chiudi</button></div>`;
   modal.querySelector('.modal-close').addEventListener('click',closeModal);
   modal.querySelectorAll('.modal-tag').forEach(b=>b.addEventListener('click',()=>{closeModal();const g=b.dataset.genre;activeGenres.add(g);updateTagUI();render();onFilterChanged();document.querySelector('.controls').scrollIntoView({behavior:'smooth'});}));
   document.getElementById('modal-overlay').classList.add('open');document.getElementById('modal-overlay').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
