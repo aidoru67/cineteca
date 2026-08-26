@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0-alpha.0
+- Aggiunta importazione multipla dal pannello Admin.
+- Un titolo per riga, massimo 50 titoli per sessione.
+- Ricerca sequenziale su TMDb per ridurre richieste concorrenti.
+- I casi con più risultati restano da confermare manualmente.
+- Inserimento tramite `add-film` senza esporre il token TMDb.
+- Progress bar dedicata all'importazione multipla.
+
+# Changelog
+
 ## v1.0.0-alpha.5
 - Replaced the manual Supabase Auth REST login with the official `@supabase/supabase-js` client.
 - Added persistent Auth session management with automatic token refresh.

@@ -23,6 +23,8 @@ export function initAdmin(reloadFn) {
   document.getElementById('tmdb-search').addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
   document.getElementById('catalog-filter').addEventListener('input', renderCatalogAdmin);
   document.getElementById('refresh-all-btn').addEventListener('click', refreshAll);
+  document.getElementById('bulk-import-btn').addEventListener('click', bulkImport);
+  document.getElementById('bulk-import-clear').addEventListener('click', clearBulkImport);
   document.getElementById('reload-btn').addEventListener('click', async () => {
     await reloadCatalog();
     renderCatalogAdmin();
@@ -170,6 +172,117 @@ async function add(movie, row) {
     if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
     btn.disabled = false; btn.textContent = '+';
   }
+}
+
+function clearBulkImport() {
+  document.getElementById('bulk-import-input').value = '';
+  document.getElementById('bulk-import-results').innerHTML = '';
+  document.getElementById('bulk-progress-wrap').hidden = true;
+}
+
+function bulkSetProgress(current, total, text) {
+  const wrap = document.getElementById('bulk-progress-wrap');
+  const bar = document.getElementById('bulk-progress-bar');
+  const pct = document.getElementById('bulk-progress-percent');
+  const label = document.getElementById('bulk-progress-text');
+  wrap.hidden = false;
+  const value = total ? Math.round((current / total) * 100) : 0;
+  bar.style.width = `${value}%`;
+  pct.textContent = `${value}%`;
+  label.textContent = text;
+}
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+async function bulkImport() {
+  const btn = document.getElementById('bulk-import-btn');
+  const input = document.getElementById('bulk-import-input');
+  const resultsBox = document.getElementById('bulk-import-results');
+  const titles = [...new Set(input.value.split(/\r?\n/).map(v => v.trim()).filter(Boolean))];
+  if (!titles.length) { showToast('Inserisci almeno un titolo'); return; }
+  if (titles.length > 50) { showToast('Massimo 50 titoli per importazione', 5000); return; }
+
+  btn.disabled = true;
+  resultsBox.innerHTML = '';
+  bulkSetProgress(0, titles.length, 'Ricerca su TMDb…');
+  const existing = new Set(getCatalog().map(movie => Number(movie.tmdb_id)).filter(Boolean));
+  let completed = 0;
+
+  try {
+    for (const title of titles) {
+      const item = document.createElement('div');
+      item.className = 'bulk-item';
+      item.innerHTML = `<div class="bulk-item-head"><strong class="bulk-item-title">${esc(title)}</strong><span class="bulk-item-status">ricerca…</span></div><div class="bulk-candidates"></div>`;
+      resultsBox.appendChild(item);
+      try {
+        const results = await api.searchFilm(title);
+        const candidates = results.slice(0, 8).filter(movie => !existing.has(Number(movie.tmdb_id)));
+        const status = item.querySelector('.bulk-item-status');
+        const box = item.querySelector('.bulk-candidates');
+        if (!candidates.length) {
+          item.classList.add('warn');
+          status.textContent = results.length ? 'già presenti o nessun candidato utile' : 'non trovato';
+          completed += 1;
+          bulkSetProgress(completed, titles.length, `Ricercati ${completed} / ${titles.length}`);
+          await sleep(180);
+          continue;
+        }
+        if (candidates.length === 1) {
+          const movie = candidates[0];
+          const row = buildBulkCandidate(movie, true);
+          box.appendChild(row);
+          status.textContent = 'selezione proposta';
+          item.classList.add('warn');
+        } else {
+          candidates.forEach(movie => box.appendChild(buildBulkCandidate(movie, false)));
+          status.textContent = `${candidates.length} risultati da scegliere`;
+          item.classList.add('warn');
+        }
+      } catch (e) {
+        if (await handleAuthError(e)) return;
+        item.classList.add('error');
+        item.querySelector('.bulk-item-status').textContent = `errore: ${e.message}`;
+      }
+      completed += 1;
+      bulkSetProgress(completed, titles.length, `Ricercati ${completed} / ${titles.length}`);
+      await sleep(180);
+    }
+    showToast(`Ricerca completata: ${titles.length} titoli`);
+  } finally {
+    btn.disabled = false;
+    bulkSetProgress(titles.length, titles.length, `Ricerca completata: ${titles.length} titoli`);
+  }
+}
+
+function buildBulkCandidate(movie, proposed = false) {
+  const row = document.createElement('div');
+  row.className = 'bulk-candidate';
+  row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div><div class="bulk-candidate-title">${esc(movie.title)}</div><div class="bulk-candidate-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id}</div></div><button class="admin-btn ${proposed ? 'primary' : ''}" type="button">${proposed ? 'Aggiungi' : '+'}</button>`;
+  row.querySelector('button').addEventListener('click', async () => {
+    const btn = row.querySelector('button');
+    btn.disabled = true; btn.textContent = '…';
+    try {
+      const result = await api.addFilm(movie.tmdb_id);
+      if (result.inserted) {
+        row.closest('.bulk-item').classList.remove('warn');
+        row.closest('.bulk-item').classList.add('done');
+        row.closest('.bulk-item').querySelector('.bulk-item-status').textContent = 'aggiunto';
+        btn.textContent = '✓';
+        await reloadCatalog();
+        renderCatalogAdmin();
+        const film = getCatalog().find(item => Number(item.tmdb_id) === Number(movie.tmdb_id));
+        if (film) document.getElementById('header-count')?.dispatchEvent(new Event('noop'));
+      } else {
+        btn.textContent = '✓';
+        row.closest('.bulk-item').classList.add('done');
+        row.closest('.bulk-item').querySelector('.bulk-item-status').textContent = 'già presente';
+      }
+    } catch (e) {
+      if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
+      btn.disabled = false; btn.textContent = proposed ? 'Aggiungi' : '+';
+    }
+  });
+  return row;
 }
 
 async function refreshAll() {
