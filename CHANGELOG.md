@@ -23,3 +23,9 @@
 - Admin access token is kept only in sessionStorage and is never written to the repository.
 - API calls to Edge Functions use the authenticated Admin session token.
 - Added Admin logout and expired-session handling.
+
+## 1.1.0-alpha.1
+- Migliorato il ranking dei risultati TMDb.
+- Priorità a corrispondenza esatta del titolo, titolo originale e anno.
+- Popolarità usata come tie-breaker.
+- Evidenziato il candidato consigliato.

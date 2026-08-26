@@ -150,7 +150,7 @@ async function search() {
       const present = existing.has(Number(movie.tmdb_id));
       const row = document.createElement('div');
       row.className = 'tmdb-result';
-      row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div><div class="tmdb-result-title">${esc(movie.title)}</div><div class="tmdb-result-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id}</div></div><button class="admin-btn ${present ? '' : 'primary'}" type="button">${present ? '↻' : '+'}</button>`;
+      row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div><div class="tmdb-result-title">${esc(movie.title)} ${movie.recommended ? '<span class="match-recommended">Consigliato</span>' : ''}</div><div class="tmdb-result-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id}</div></div><button class="admin-btn ${present ? '' : 'primary'}" type="button">${present ? '↻' : '+'}</button>`;
       row.querySelector('button').addEventListener('click', () => present ? refreshOne(movie, row) : add(movie, row));
       box.appendChild(row);
     });
@@ -234,7 +234,7 @@ async function bulkImport() {
           status.textContent = 'selezione proposta';
           item.classList.add('warn');
         } else {
-          candidates.forEach(movie => box.appendChild(buildBulkCandidate(movie, false)));
+          candidates.forEach((movie, index) => box.appendChild(buildBulkCandidate(movie, index === 0 && movie.recommended)));
           status.textContent = `${candidates.length} risultati da scegliere`;
           item.classList.add('warn');
         }
@@ -257,7 +257,7 @@ async function bulkImport() {
 function buildBulkCandidate(movie, proposed = false) {
   const row = document.createElement('div');
   row.className = 'bulk-candidate';
-  row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div><div class="bulk-candidate-title">${esc(movie.title)}</div><div class="bulk-candidate-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id}</div></div><button class="admin-btn ${proposed ? 'primary' : ''}" type="button">${proposed ? 'Aggiungi' : '+'}</button>`;
+  row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div><div class="bulk-candidate-title">${esc(movie.title)} ${proposed ? '<span class="match-recommended">Consigliato</span>' : ''}</div><div class="bulk-candidate-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id}</div></div><button class="admin-btn ${proposed ? 'primary' : ''}" type="button">${proposed ? 'Aggiungi' : '+'}</button>`;
   row.querySelector('button').addEventListener('click', async () => {
     const btn = row.querySelector('button');
     btn.disabled = true; btn.textContent = '…';
