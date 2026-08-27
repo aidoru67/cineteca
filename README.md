@@ -38,3 +38,8 @@ La chiave publishable/anon è adatta al browser quando le policy RLS sono config
 ## 6. Rollback
 
 Conserva il vecchio `index.html`. La release originale è inclusa nel pacchetto come `original-index.html` solo come riferimento; non viene usata dalla pagina.
+
+
+## Statistiche Admin
+
+Il pannello Admin include statistiche dinamiche del catalogo: copertura TMDb, durata e voto medi, generi e registi più presenti, distribuzione per decennio e principali estremi del catalogo.

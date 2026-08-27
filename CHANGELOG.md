@@ -38,3 +38,9 @@
 - Added advanced catalog search: director, original title, year range, runtime range, genre.
 - Filters combine with the existing text search and genre tags.
 - Added reset action.
+
+## 1.2.0-alpha.1
+- Added expanded Admin catalog statistics.
+- Added TMDb coverage, average runtime and average TMDb rating.
+- Added top genres, top directors and films by decade.
+- Added oldest/newest, longest and highest-rated film summaries.
