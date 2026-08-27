@@ -44,3 +44,9 @@
 - Added TMDb coverage, average runtime and average TMDb rating.
 - Added top genres, top directors and films by decade.
 - Added oldest/newest, longest and highest-rated film summaries.
+
+## v1.1.0-alpha.3
+- Importazione massiva migliorata: analisi separata dall'inserimento.
+- Pulsante "Aggiungi consigliati" per inserire in sequenza i match con maggiore confidenza.
+- I casi ambigui restano manuali.
+- Progress bar dedicata all'inserimento massivo.
