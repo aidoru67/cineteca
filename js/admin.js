@@ -25,7 +25,6 @@ export function initAdmin(reloadFn) {
   document.getElementById('refresh-all-btn').addEventListener('click', refreshAll);
   document.getElementById('duplicate-scan-btn').addEventListener('click', scanDuplicates);
   document.getElementById('bulk-import-btn').addEventListener('click', bulkImport);
-  document.getElementById('bulk-add-recommended').addEventListener('click', bulkAddRecommended);
   document.getElementById('bulk-import-clear').addEventListener('click', clearBulkImport);
   document.getElementById('reload-btn').addEventListener('click', async () => {
     await reloadCatalog();
@@ -273,9 +272,6 @@ function clearBulkImport() {
   document.getElementById('bulk-import-input').value = '';
   document.getElementById('bulk-import-results').innerHTML = '';
   document.getElementById('bulk-progress-wrap').hidden = true;
-  const addBtn = document.getElementById('bulk-add-recommended');
-  addBtn.disabled = true;
-  addBtn.textContent = 'Aggiungi consigliati';
 }
 
 function bulkSetProgress(current, total, text) {
@@ -305,11 +301,6 @@ async function bulkImport() {
   bulkSetProgress(0, titles.length, 'Ricerca su TMDb…');
   const existing = new Set(getCatalog().map(movie => Number(movie.tmdb_id)).filter(Boolean));
   let completed = 0;
-  let recommendedCount = 0;
-
-  const addBtn = document.getElementById('bulk-add-recommended');
-  addBtn.disabled = true;
-  addBtn.textContent = 'Aggiungi consigliati';
 
   try {
     for (const title of titles) {
@@ -334,15 +325,10 @@ async function bulkImport() {
           const movie = candidates[0];
           const row = buildBulkCandidate(movie, true);
           box.appendChild(row);
-          recommendedCount += 1;
           status.textContent = 'selezione proposta';
           item.classList.add('warn');
         } else {
-          candidates.forEach((movie, index) => {
-            const proposed = index === 0 && movie.recommended;
-            if (proposed) recommendedCount += 1;
-            box.appendChild(buildBulkCandidate(movie, proposed));
-          });
+          candidates.forEach((movie, index) => box.appendChild(buildBulkCandidate(movie, index === 0 && movie.recommended)));
           status.textContent = `${candidates.length} risultati da scegliere`;
           item.classList.add('warn');
         }
@@ -355,9 +341,7 @@ async function bulkImport() {
       bulkSetProgress(completed, titles.length, `Ricercati ${completed} / ${titles.length}`);
       await sleep(180);
     }
-    addBtn.disabled = recommendedCount === 0;
-    addBtn.textContent = recommendedCount ? `Aggiungi consigliati (${recommendedCount})` : 'Aggiungi consigliati';
-    showToast(`Analisi completata: ${titles.length} titoli · ${recommendedCount} consigliati`);
+    showToast(`Ricerca completata: ${titles.length} titoli`);
   } finally {
     btn.disabled = false;
     bulkSetProgress(titles.length, titles.length, `Ricerca completata: ${titles.length} titoli`);
@@ -366,8 +350,7 @@ async function bulkImport() {
 
 function buildBulkCandidate(movie, proposed = false) {
   const row = document.createElement('div');
-  row.className = `bulk-candidate${proposed ? ' proposed' : ''}`;
-  row.dataset.tmdbId = String(movie.tmdb_id);
+  row.className = 'bulk-candidate';
   row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div><div class="bulk-candidate-title">${esc(movie.title)} ${proposed ? '<span class="match-recommended">Consigliato</span>' : ''}</div><div class="bulk-candidate-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id}</div></div><button class="admin-btn ${proposed ? 'primary' : ''}" type="button">${proposed ? 'Aggiungi' : '+'}</button>`;
   row.querySelector('button').addEventListener('click', async () => {
     const btn = row.querySelector('button');
@@ -394,54 +377,6 @@ function buildBulkCandidate(movie, proposed = false) {
     }
   });
   return row;
-}
-
-async function bulkAddRecommended() {
-  const addBtn = document.getElementById('bulk-add-recommended');
-  const candidates = [...document.querySelectorAll('.bulk-candidate.proposed')].filter(row => !row.closest('.bulk-item')?.classList.contains('done'));
-  if (!candidates.length) {
-    addBtn.disabled = true;
-    addBtn.textContent = 'Aggiungi consigliati';
-    showToast('Nessun film consigliato da aggiungere');
-    return;
-  }
-
-  addBtn.disabled = true;
-  let done = 0;
-  const total = candidates.length;
-  bulkSetProgress(0, total, 'Inserimento dei film consigliati…');
-
-  for (const row of candidates) {
-    const item = row.closest('.bulk-item');
-    const btn = row.querySelector('button');
-    if (item?.classList.contains('done')) continue;
-
-    btn.disabled = true;
-    btn.textContent = '…';
-    try {
-      const result = await api.addFilm(Number(row.dataset.tmdbId));
-      item.classList.remove('warn');
-      item.classList.add('done');
-      item.querySelector('.bulk-item-status').textContent = result.inserted ? 'aggiunto' : 'già presente';
-      btn.textContent = '✓';
-      done += 1;
-      await reloadCatalog();
-      renderCatalogAdmin();
-    } catch (e) {
-      if (await handleAuthError(e)) return;
-      item.classList.add('error');
-      item.querySelector('.bulk-item-status').textContent = `errore: ${e.message}`;
-      btn.disabled = false;
-      btn.textContent = 'Aggiungi';
-    }
-    bulkSetProgress(done, total, `Inseriti ${done} / ${total}`);
-    await sleep(120);
-  }
-
-  const remaining = document.querySelectorAll('.bulk-candidate.proposed:not(.done)').length;
-  addBtn.disabled = remaining === 0;
-  addBtn.textContent = remaining ? `Aggiungi consigliati (${remaining})` : 'Consigliati inseriti ✓';
-  showToast(`Importazione completata: ${done} film`);
 }
 
 async function refreshAll() {

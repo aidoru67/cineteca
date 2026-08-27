@@ -44,5 +44,5 @@ Conserva il vecchio `index.html`. La release originale è inclusa nel pacchetto 
 
 Il pannello Admin include statistiche dinamiche del catalogo: copertura TMDb, durata e voto medi, generi e registi più presenti, distribuzione per decennio e principali estremi del catalogo.
 
-## Importazione massiva migliorata
-Nel pannello Admin l'importazione massiva analizza prima la lista e propone il miglior candidato per ciascun titolo. Usa "Aggiungi consigliati" per inserire in sequenza i match consigliati; i casi ambigui restano da confermare singolarmente.
+### Backup ed esportazione
+Nel pannello Admin sono disponibili **Backup JSON** ed **Esporta CSV**. I file vengono creati direttamente nel browser usando i dati già caricati e non vengono inviati online.

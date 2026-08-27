@@ -4,6 +4,7 @@ import { debounce } from './utils.js';
 import { showToast } from './ui.js';
 import { updateStats } from './stats.js';
 import { initAdmin } from './admin.js';
+import { initExport } from './export.js';
 import { initAdvancedSearch, refreshGenres } from './advanced-search.js';
 
 async function loadCatalog(){
@@ -27,5 +28,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')films.closeModal()})
 // Piccolo adattatore per il modulo admin: gli fornisce il catalogo corrente senza duplicarlo.
 loadCatalog.getFilms=films.getFilms;
 initAdmin(loadCatalog);
+  initExport(films.getFilms, msg => { const el = document.getElementById('export-status'); if (el) el.textContent = msg; });
 loadCatalog.getFilms=films.getFilms;
 loadCatalog();

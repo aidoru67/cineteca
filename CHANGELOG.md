@@ -45,8 +45,7 @@
 - Added top genres, top directors and films by decade.
 - Added oldest/newest, longest and highest-rated film summaries.
 
-## v1.1.0-alpha.3
-- Importazione massiva migliorata: analisi separata dall'inserimento.
-- Pulsante "Aggiungi consigliati" per inserire in sequenza i match con maggiore confidenza.
-- I casi ambigui restano manuali.
-- Progress bar dedicata all'inserimento massivo.
+## 1.2.0-alpha.2
+- Backup JSON completo del catalogo dal pannello Admin.
+- Esportazione CSV UTF-8 del catalogo.
+- Download generato localmente nel browser; nessun dato viene inviato a servizi esterni.
