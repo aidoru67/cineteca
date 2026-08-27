@@ -49,3 +49,9 @@
 - Backup JSON completo del catalogo dal pannello Admin.
 - Esportazione CSV UTF-8 del catalogo.
 - Download generato localmente nel browser; nessun dato viene inviato a servizi esterni.
+
+## 1.2.0-alpha.3
+- Gestione avanzata duplicati con confronto affiancato.
+- Selezione record principale.
+- Unione dei dati mancanti tramite Edge Function `merge-films`.
+- Eliminazione dei duplicati solo dopo conferma.

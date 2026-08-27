@@ -194,38 +194,66 @@ function scanDuplicates() {
 function buildDuplicateGroup(reason, movies) {
   const group = document.createElement('div');
   group.className = 'duplicate-group';
-  group.innerHTML = `<div class="duplicate-head"><div><strong>${esc(reason)}</strong><span>${movies.length} record</span></div></div><div class="duplicate-list"></div>`;
-  const list = group.querySelector('.duplicate-list');
-  movies.forEach((movie, index) => {
-    const row = document.createElement('div');
-    row.className = 'duplicate-row';
-    const recommended = index === 0 && movie.poster_url && movie.synopsis && movie.tmdb_id;
-    row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}<div class="duplicate-info"><strong>${esc(movie.title)}</strong><span>ID ${movie.id} · ${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</span></div><div class="duplicate-actions">${recommended ? '<span class="duplicate-keep">Conserva</span>' : ''}<button class="admin-btn danger" type="button">Elimina</button></div>`;
-    row.querySelector('button').addEventListener('click', () => deleteDuplicate(movie, row, group));
-    list.appendChild(row);
-  });
+  const options = movies.map((movie) => `<option value="${movie.id}">${esc(movie.title)} · ID ${movie.id} · TMDb ${movie.tmdb_id || '—'}</option>`).join('');
+  group.innerHTML = `
+    <div class="duplicate-head"><div><strong>${esc(reason)}</strong><span>${movies.length} record</span></div></div>
+    <div class="duplicate-compare"></div>
+    <div class="duplicate-merge-bar">
+      <label>Conserva</label>
+      <select class="duplicate-keeper">${options}</select>
+      <button class="admin-btn primary duplicate-merge-btn" type="button">Unisci dati</button>
+    </div>`;
+  const compare = group.querySelector('.duplicate-compare');
+  const render = () => {
+    const keeperId = Number(group.querySelector('.duplicate-keeper').value);
+    compare.innerHTML = '';
+    movies.forEach(movie => {
+      const card = document.createElement('div');
+      card.className = `duplicate-card${movie.id === keeperId ? ' keeper' : ''}`;
+      card.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="">` : '<div class="no-thumb"></div>'}
+        <div class="duplicate-card-body">
+          <strong>${esc(movie.title)}</strong>
+          <span>ID ${movie.id} · ${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</span>
+          <dl>
+            <div><dt>Titolo originale</dt><dd>${esc(movie.original_title || '—')}</dd></div>
+            <div><dt>Regia</dt><dd>${esc(movie.director || '—')}</dd></div>
+            <div><dt>Durata</dt><dd>${movie.runtime ? `${movie.runtime} min` : '—'}</dd></div>
+            <div><dt>Voto</dt><dd>${movie.vote_average ?? '—'}</dd></div>
+          </dl>
+          <div class="duplicate-actions">
+            ${movie.id === keeperId ? '<span class="duplicate-keep">Record principale</span>' : '<button class="admin-btn danger delete-one" type="button">Elimina</button>'}
+          </div>
+        </div>`;
+      const del=card.querySelector('.delete-one');
+      if(del) del.addEventListener('click',()=>deleteDuplicate(movie, card, group));
+      compare.appendChild(card);
+    });
+  };
+  group.querySelector('.duplicate-keeper').addEventListener('change', render);
+  group.querySelector('.duplicate-merge-btn').addEventListener('click', () => mergeDuplicateGroup(movies, Number(group.querySelector('.duplicate-keeper').value), group));
+  render();
   return group;
 }
 
-async function deleteDuplicate(movie, row, group) {
-  const ok = window.confirm(`Eliminare definitivamente \"${movie.title}\" (record ID ${movie.id})?`);
+async function mergeDuplicateGroup(movies, keeperId, group) {
+  const duplicateIds = movies.map(m => m.id).filter(id => id !== keeperId);
+  if (!duplicateIds.length) return;
+  const keeper = movies.find(m => m.id === keeperId);
+  const ok = window.confirm(`Unire i ${duplicateIds.length} duplicati in "${keeper?.title || 'record principale'}"? I dati mancanti saranno recuperati dagli altri record e questi verranno eliminati.`);
   if (!ok) return;
-  const btn = row.querySelector('button');
-  btn.disabled = true;
-  btn.textContent = '…';
+  const btn = group.querySelector('.duplicate-merge-btn');
+  btn.disabled = true; btn.textContent = 'Unione…';
   try {
-    await api.deleteFilm(movie.id);
+    const result = await api.mergeFilms(keeperId, duplicateIds);
     await reloadCatalog();
     renderCatalogAdmin();
-    row.remove();
-    if (!group.querySelector('.duplicate-row')) group.remove();
-    showToast(`${movie.title} eliminato`);
-    const remaining = document.querySelectorAll('.duplicate-group').length;
-    document.getElementById('duplicate-summary').textContent = remaining ? `${remaining} gruppi da verificare` : 'Nessun duplicato rilevato';
+    group.remove();
+    showToast(`Duplicati uniti: ${result.deleted ?? duplicateIds.length}`);
+    const groups = document.querySelectorAll('.duplicate-group').length;
+    document.getElementById('duplicate-summary').textContent = groups ? `${groups} gruppi da verificare` : 'Nessun duplicato rilevato';
   } catch (e) {
     if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
-    btn.disabled = false;
-    btn.textContent = 'Elimina';
+    btn.disabled = false; btn.textContent = 'Unisci dati';
   }
 }
 

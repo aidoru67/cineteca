@@ -86,3 +86,7 @@ export function getPublicConfig() { return CONFIG; }
 export async function deleteFilm(id) {
   return request(`${CONFIG.supabaseUrl}/functions/v1/delete-film`, { method:'POST', body:JSON.stringify({ id }) });
 }
+
+export async function mergeFilms(keeper_id, duplicate_ids) {
+  return request(`${CONFIG.supabaseUrl}/functions/v1/merge-films`, { method:'POST', body:JSON.stringify({ keeper_id, duplicate_ids }) });
+}
