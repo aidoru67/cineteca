@@ -3,6 +3,7 @@ import { esc, fallbackPoster } from './utils.js';
 let films = [];
 let activeGenres = new Set();
 let searchQuery = '';
+let advancedFilters = { yearFrom:null, yearTo:null, director:'', original:'', runtimeFrom:null, runtimeTo:null, genre:'' };
 let onFilterChanged = () => {};
 
 export function setFilms(value) { films = Array.isArray(value) ? value : []; }
@@ -40,14 +41,25 @@ function openPanel(){document.getElementById('tags-panel').classList.add('open')
 
 function filtered() {
   const q=searchQuery.trim().toLowerCase();
+  const a=advancedFilters;
   return films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
     if(q){const hay=[f.title,f.original_title,f.director,f.synopsis].filter(Boolean).join(' ').toLowerCase();if(!hay.includes(q)) return false;}
+    if(a.genre && !(f.genres||[]).some(g=>g===a.genre)) return false;
+    if(a.director && !String(f.director||'').toLowerCase().includes(a.director.toLowerCase())) return false;
+    if(a.original && !String(f.original_title||'').toLowerCase().includes(a.original.toLowerCase())) return false;
+    if(a.yearFrom && (!f.year || Number(f.year)<a.yearFrom)) return false;
+    if(a.yearTo && (!f.year || Number(f.year)>a.yearTo)) return false;
+    if(a.runtimeFrom && (!f.runtime || Number(f.runtime)<a.runtimeFrom)) return false;
+    if(a.runtimeTo && (!f.runtime || Number(f.runtime)>a.runtimeTo)) return false;
     return true;
   });
 }
 
 export function setSearch(value){searchQuery=value;render()}
+export function setAdvancedFilters(value){advancedFilters={...advancedFilters,...value};render()}
+export function getAdvancedFilters(){return {...advancedFilters}}
+export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getFilteredCount(){return filtered().length}
 
 export function render() {

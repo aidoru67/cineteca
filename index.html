@@ -23,10 +23,23 @@
       <input type="search" id="search" placeholder="Cerca titolo, regista…" autocomplete="off">
     </div>
     <button class="genre-toggle" id="genre-toggle" type="button">Generi <span class="arrow">▾</span><span class="genre-badge" id="genre-badge">0</span></button>
+    <button class="genre-toggle advanced-toggle" id="advanced-toggle" type="button" aria-expanded="false">Filtri <span class="arrow">▾</span></button>
     <span class="count" id="count"><span>0</span> film</span>
     <button class="admin-open" id="admin-open" type="button" title="Amministrazione">⚙</button>
   </div>
   <div class="tags-panel" id="tags-panel"><div class="tags-inner" id="tags"></div></div>
+  <div class="advanced-panel" id="advanced-panel">
+    <div class="advanced-grid">
+      <label><span>Regista</span><input id="advanced-director" type="search" placeholder="es. Kubrick"></label>
+      <label><span>Titolo originale</span><input id="advanced-original" type="search" placeholder="es. The Godfather"></label>
+      <label><span>Anno da</span><input id="advanced-year-from" type="number" min="1888" max="2100" placeholder="es. 1980"></label>
+      <label><span>Anno a</span><input id="advanced-year-to" type="number" min="1888" max="2100" placeholder="es. 1999"></label>
+      <label><span>Durata min</span><input id="advanced-runtime-from" type="number" min="1" max="999" placeholder="min"></label>
+      <label><span>Durata max</span><input id="advanced-runtime-to" type="number" min="1" max="999" placeholder="max"></label>
+      <label><span>Genere</span><select id="advanced-genre"><option value="">Tutti i generi</option></select></label>
+      <div class="advanced-actions"><button class="tag tag-clear" id="advanced-clear" type="button">✕ reset filtri</button></div>
+    </div>
+  </div>
 </div>
 
 <main><div class="grid" id="grid"><div class="state-msg"><strong>⬤</strong>Connessione a Supabase…</div></div></main>

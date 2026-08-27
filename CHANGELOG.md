@@ -33,3 +33,8 @@
 ## 1.1.0-alpha.2
 - Added duplicate detection by normalized title + year and duplicate TMDb ID.
 - Added confirmation-based deletion from the Admin panel for duplicate cleanup.
+
+## 1.2.0-alpha.0
+- Added advanced catalog search: director, original title, year range, runtime range, genre.
+- Filters combine with the existing text search and genre tags.
+- Added reset action.
