@@ -39,21 +39,83 @@ export function togglePanel() {
 }
 function openPanel(){document.getElementById('tags-panel').classList.add('open');document.getElementById('genre-toggle').classList.add('open')}
 
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(
+        cur[j - 1] + 1,
+        prev[j] + 1,
+        prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+    prev.splice(0, prev.length, ...cur);
+  }
+  return prev[b.length];
+}
+
+function tokenScore(query, value) {
+  const q = normalizeText(query);
+  const text = normalizeText(value);
+  if (!q || !text) return 0;
+  if (text === q) return 1;
+  if (text.includes(q)) return 0.95;
+  const qTokens = q.split(' ');
+  const tTokens = text.split(' ');
+  let hits = 0;
+  for (const qt of qTokens) {
+    if (tTokens.some(tt => tt === qt)) hits += 1;
+    else if (tTokens.some(tt => tt.includes(qt) || qt.includes(tt))) hits += 0.75;
+    else {
+      const nearest = Math.min(...tTokens.map(tt => levenshtein(qt, tt)));
+      const threshold = qt.length >= 6 ? 2 : 1;
+      if (nearest <= threshold) hits += 0.5;
+    }
+  }
+  return qTokens.length ? hits / qTokens.length * 0.9 : 0;
+}
+
+function searchScore(f, query) {
+  const fields = [
+    [f.title, 1.00],
+    [f.original_title, 0.95],
+    [f.director, 0.90],
+    [f.synopsis, 0.45]
+  ];
+  let best = 0;
+  for (const [value, weight] of fields) best = Math.max(best, tokenScore(query, value) * weight);
+  return best;
+}
+
 function filtered() {
-  const q=searchQuery.trim().toLowerCase();
+  const q=searchQuery.trim();
   const a=advancedFilters;
   return films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
-    if(q){const hay=[f.title,f.original_title,f.director,f.synopsis].filter(Boolean).join(' ').toLowerCase();if(!hay.includes(q)) return false;}
+    if(q && searchScore(f, q) < 0.32) return false;
     if(a.genre && !(f.genres||[]).some(g=>g===a.genre)) return false;
-    if(a.director && !String(f.director||'').toLowerCase().includes(a.director.toLowerCase())) return false;
-    if(a.original && !String(f.original_title||'').toLowerCase().includes(a.original.toLowerCase())) return false;
+    if(a.director && !tokenScore(a.director, f.director)) return false;
+    if(a.original && !tokenScore(a.original, f.original_title)) return false;
     if(a.yearFrom && (!f.year || Number(f.year)<a.yearFrom)) return false;
     if(a.yearTo && (!f.year || Number(f.year)>a.yearTo)) return false;
     if(a.runtimeFrom && (!f.runtime || Number(f.runtime)<a.runtimeFrom)) return false;
     if(a.runtimeTo && (!f.runtime || Number(f.runtime)>a.runtimeTo)) return false;
     return true;
-  });
+  }).sort((x, y) => q ? searchScore(y, q) - searchScore(x, q) : normalizeText(x.title).localeCompare(normalizeText(y.title), 'it'));
 }
 
 export function setSearch(value){searchQuery=value;render()}

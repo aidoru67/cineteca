@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0-alpha.4
+- Ricerca intelligente locale con tolleranza agli errori di battitura.
+- Normalizzazione di accenti e punteggiatura.
+- Ranking per pertinenza su titolo, titolo originale, regista e sinossi.
+- Ordinamento alfabetico mantenuto quando non è presente una query.
+
 ## 1.1.0-alpha.0
 - Aggiunta importazione multipla dal pannello Admin.
 - Un titolo per riga, massimo 50 titoli per sessione.
