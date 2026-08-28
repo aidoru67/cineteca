@@ -16,4 +16,4 @@ main{padding:2rem;max-width:1600px;margin:0 auto}.grid{display:grid;grid-templat
 
 .advanced-grid{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.advanced-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.advanced-grid{grid-template-columns:1fr}}
 
-#dvd-toggle{cursor:pointer}#dvd-toggle.has-active{border-color:var(--accent);color:var(--accent);background:var(--tag-active)}
+.dvd-toggle.has-active{border-color:var(--accent);color:var(--accent);background:var(--tag-active)}

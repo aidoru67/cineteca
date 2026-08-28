@@ -22,6 +22,8 @@ initAdvancedSearch({ onChange: value => films.setAdvancedFilters(value), getFilt
 
 const search=document.getElementById('search');search.addEventListener('input',debounce(e=>films.setSearch(e.target.value),120));
 document.getElementById('genre-toggle').addEventListener('click',films.togglePanel);
+window.addEventListener('cineteca:dvd-filter', e => films.setDvdOnly(Boolean(e.detail?.active)));
+films.updateDvdUI();
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)films.closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')films.closeModal()});
 

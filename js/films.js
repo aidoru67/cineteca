@@ -2,6 +2,7 @@ import { esc, fallbackPoster } from './utils.js';
 
 let films = [];
 let activeGenres = new Set();
+let dvdOnly = false;
 let searchQuery = '';
 let advancedFilters = { yearFrom:null, yearTo:null, director:'', original:'', runtimeFrom:null, runtimeTo:null, genre:'', saga:'', media:'' };
 let onFilterChanged = () => {};
@@ -27,6 +28,9 @@ export function buildTags() {
   });
   if (window.innerWidth >= 641) openPanel();
 }
+
+export function setDvdOnly(value){ dvdOnly=Boolean(value); updateDvdUI(); render(); onFilterChanged(); }
+export function updateDvdUI() { const b=document.getElementById('dvd-toggle'); if(!b) return; b.classList.toggle('has-active',dvdOnly); b.setAttribute('aria-pressed',String(dvdOnly)); }
 
 export function updateTagUI() {
   document.querySelectorAll('.tag[data-genre]').forEach(b => b.classList.toggle('active', activeGenres.has(b.dataset.genre)));
@@ -106,6 +110,7 @@ function filtered() {
   const a=advancedFilters;
   return films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
+    if(dvdOnly && !((f.media_type||'').toUpperCase()==='DVD' || (f.media_types||[]).some(g=>String(g).toUpperCase()==='DVD'))) return false;
     if(q && searchScore(f, q) < 0.32) return false;
     if(a.genre && !(f.genres||[]).some(g=>g===a.genre)) return false;
     if(a.saga && !((f.saga && f.saga===a.saga) || (f.sagas||[]).some(g=>g===a.saga))) return false;
@@ -125,7 +130,7 @@ export function setAdvancedFilters(value){advancedFilters={...advancedFilters,..
 export function getAdvancedFilters(){return {...advancedFilters}}
 export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getAllSagas(){const all=new Set();films.forEach(f=>{if(f.saga)all.add(f.saga);(f.sagas||[]).forEach(g=>all.add(g))});return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
-export function getAllMediaTypes(){ return films.some(f=>f.media_type==='DVD'||(f.media_types||[]).includes('DVD')) ? ['DVD'] : []; }
+export function getAllMediaTypes(){const order=['HD','DVD']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
 export function getFilteredCount(){return filtered().length}
 
 export function render() {
@@ -136,7 +141,7 @@ export function render() {
   list.forEach((f,i)=>{
     const card=document.createElement('article');card.className='card';card.style.animationDelay=`${Math.min(i*20,300)}ms`;
     const genres=(f.genres||[]).slice(0,3).map(g=>`<span class="card-tag">${esc(g)}</span>`).join('');
-    const media=((f.media_type === 'DVD' || (f.media_types||[]).includes('DVD')) ? '<span class="card-tag media-tag">DVD</span>' : '');
+    const media=[...(f.media_type?[f.media_type]:[]),...(f.media_types||[])].filter((v,i,a)=>String(v).toUpperCase()==='DVD' && a.findIndex(x=>String(x).toUpperCase()==='DVD')===i).map(g=>`<span class="card-tag media-tag">${esc(g)}</span>`).join('');
     const saga=(f.sagas||[]).map(g=>`<span class="card-tag saga-tag">${esc(g)}</span>`).join('');
     const poster=f.poster_url?`<img class="card-poster" src="${esc(f.poster_url)}" alt="${esc(f.title)}" loading="lazy">`:fallbackPoster(f.title);
     card.innerHTML=`${poster}<div class="card-body"><div class="card-title">${esc(f.title)}</div><div class="card-meta"><span class="card-year">${f.year||'—'}</span>${f.director?`<span>${esc(f.director)}</span>`:''}</div>${(genres||media||saga)?`<div class="card-genres">${genres}${saga}${media}</div>`:''}</div>`;

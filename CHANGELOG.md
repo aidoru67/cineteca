@@ -1,3 +1,9 @@
+## 1.2.0-alpha.9
+- Fixed DVD filter to recognize both media_type and media_types.
+- Added DVD quick-toggle next to Generi.
+- Removed obsolete HD option from Admin edit/add UI.
+- Film cards and detail modal display DVD from either field.
+
 - 1.2.0-alpha.6: added saga/cycle labels, physical/media support labels, filters, and add-film metadata selection.
 # Changelog
 
@@ -74,7 +80,6 @@
 - Preserved local metadata during TMDb refresh.
 
 ## 1.2.0-alpha.8
-- Supporto semplificato al solo DVD.
-- Filtro DVD immediato nella barra principale.
-- Eliminati HD, Blu-ray e Streaming dall'interfaccia.
-- Modifica film esistenti con toggle DVD.
+- Ridotti i supporti disponibili a HD e DVD.
+- Rimossi Blu-ray e Streaming dai moduli di inserimento/modifica e dai filtri.
+- I vecchi dati eventualmente presenti non vengono visualizzati come nuove opzioni.

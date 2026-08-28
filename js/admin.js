@@ -19,6 +19,7 @@ export function initAdmin(reloadFn) {
   contentView = document.getElementById('admin-content');
 
   document.getElementById('admin-open').addEventListener('click', open);
+  document.getElementById('dvd-toggle')?.addEventListener('click', () => { const active = document.getElementById('dvd-toggle').getAttribute('aria-pressed') === 'true'; window.dispatchEvent(new CustomEvent('cineteca:dvd-filter',{detail:{active:!active}})); });
   document.getElementById('admin-close').addEventListener('click', close);
   document.getElementById('admin-backdrop').addEventListener('click', close);
   document.getElementById('tmdb-search-btn').addEventListener('click', search);
@@ -37,8 +38,6 @@ export function initAdmin(reloadFn) {
   document.getElementById('admin-logout').addEventListener('click', async () => { try { await api.adminLogout(); } finally { showLogin(); } });
   document.getElementById('add-cancel').addEventListener('click', closeAddDialog);
   document.getElementById('add-confirm').addEventListener('click', confirmAddDialog);
-  document.querySelector('#media-add-dialog .media-choice')?.addEventListener('click', e => { const b=e.currentTarget; const a=b.classList.toggle('active'); b.setAttribute('aria-pressed', String(a)); });
-  document.querySelector('#edit-media-checks .media-choice')?.addEventListener('click', e => { const b=e.currentTarget; const a=b.classList.toggle('active'); b.setAttribute('aria-pressed', String(a)); });
   document.getElementById('edit-cancel').addEventListener('click', closeEditDialog);
   document.getElementById('edit-confirm').addEventListener('click', confirmEditDialog);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
@@ -137,8 +136,7 @@ function openEditDialog(movie) {
   document.getElementById('edit-title').textContent = `Modifica: ${movie.title}`;
   document.getElementById('edit-saga').value = movie.saga || movie.sagas?.[0] || '';
   const selected = movie.media_types || (movie.media_type ? [movie.media_type] : []);
-  const choice = document.querySelector('#edit-media-checks .media-choice');
-  if (choice) { const active = selected.includes('DVD'); choice.classList.toggle('active', active); choice.setAttribute('aria-pressed', String(active)); }
+  document.querySelectorAll('#edit-media-checks input').forEach(input => { input.checked = selected.includes(input.value); });
   document.getElementById('media-edit-dialog').hidden = false;
   document.getElementById('edit-saga').focus();
 }
@@ -152,8 +150,7 @@ async function confirmEditDialog() {
   if (!pendingEditMovie) return;
   const movie = pendingEditMovie;
   const saga = document.getElementById('edit-saga').value.trim();
-  const choice = document.querySelector('#edit-media-checks .media-choice');
-  const mediaTypes = choice?.classList.contains('active') ? ['DVD'] : [];
+  const mediaTypes = [...document.querySelectorAll('#edit-media-checks input:checked')].map(i => i.value);
   const btn = document.getElementById('edit-confirm');
   btn.disabled = true; btn.textContent = 'Salvataggio…';
   try {
