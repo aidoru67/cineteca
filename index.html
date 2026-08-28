@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Mia Cineteca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<header>
+  <p class="eyebrow">Collezione personale</p>
+  <h1>La Mia <em>Cineteca</em></h1>
+  <p class="subtitle" id="header-count">caricamento…</p>
+</header>
+
+<div class="controls">
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search" placeholder="Cerca titolo, regista…" autocomplete="off">
+    </div>
+    <button class="genre-toggle" id="genre-toggle" type="button">Generi <span class="arrow">▾</span><span class="genre-badge" id="genre-badge">0</span></button>
+    <button class="genre-toggle dvd-toggle" id="dvd-toggle" type="button" aria-pressed="false">DVD</button><button class="genre-toggle saga-toggle" id="saga-toggle" type="button" aria-expanded="false">Saghe <span class="arrow">▾</span></button><button class="genre-toggle advanced-toggle" id="advanced-toggle" type="button" aria-expanded="false">Filtri <span class="arrow">▾</span></button>
+    <span class="count" id="count"><span>0</span> film</span>
+    <button class="admin-open" id="admin-open" type="button" title="Amministrazione">⚙</button>
+  </div>
+  <div class="tags-panel" id="tags-panel"><div class="tags-inner" id="tags"></div></div><div class="tags-panel saga-panel" id="saga-panel"><div class="tags-inner" id="sagas"></div></div>
+  <div class="advanced-panel" id="advanced-panel">
+    <div class="advanced-grid">
+      <label><span>Regista</span><input id="advanced-director" type="search" placeholder="es. Kubrick"></label>
+      <label><span>Titolo originale</span><input id="advanced-original" type="search" placeholder="es. The Godfather"></label>
+      <label><span>Anno da</span><input id="advanced-year-from" type="number" min="1888" max="2100" placeholder="es. 1980"></label>
+      <label><span>Anno a</span><input id="advanced-year-to" type="number" min="1888" max="2100" placeholder="es. 1999"></label>
+      <label><span>Durata min</span><input id="advanced-runtime-from" type="number" min="1" max="999" placeholder="min"></label>
+      <label><span>Durata max</span><input id="advanced-runtime-to" type="number" min="1" max="999" placeholder="max"></label>
+      <label><span>Genere</span><select id="advanced-genre"><option value="">Tutti i generi</option></select></label>
+      <label><span>Saga / ciclo</span><select id="advanced-saga"><option value="">Tutte le saghe</option></select></label>
+      <label><span>Supporto</span><select id="advanced-media"><option value="">Tutti i supporti</option></select></label>
+      <div class="advanced-actions"><button class="tag tag-clear" id="advanced-clear" type="button">✕ reset filtri</button></div><label class="sort-field"><span>Ordina</span><select id="sort-select"><option value="title-asc">Titolo A → Z</option><option value="title-desc">Titolo Z → A</option><option value="year-asc">Anno crescente</option><option value="year-desc">Anno decrescente</option><option value="rating-desc">Voto TMDb</option><option value="runtime-desc">Durata ↓</option><option value="runtime-asc">Durata ↑</option></select></label>
+    </div>
+  </div>
+</div>
+
+<main><div class="grid" id="grid"><div class="state-msg"><strong>⬤</strong>Connessione a Supabase…</div></div></main>
+
+<div class="modal-overlay" id="modal-overlay" aria-hidden="true">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div>
+</div>
+
+<aside class="admin-panel" id="admin-panel" aria-hidden="true">
+  <div class="admin-backdrop" id="admin-backdrop"></div>
+  <section class="admin-drawer" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+    <div class="admin-head"><div><p class="admin-eyebrow">Gestione</p><h2 id="admin-title">Cineteca Admin</h2></div><button class="icon-btn" id="admin-close" type="button" aria-label="Chiudi">×</button></div>
+    <div class="admin-body">
+      <section class="admin-login" id="admin-login">
+        <p class="admin-eyebrow">Accesso riservato</p>
+        <h3>Autenticazione Admin</h3>
+        <form id="admin-login-form" class="admin-login-form" novalidate>
+          <label for="admin-email">Email</label>
+          <input id="admin-email" type="email" autocomplete="username" required placeholder="La tua email Admin">
+          <label for="admin-password">Password</label>
+          <input id="admin-password" type="password" autocomplete="current-password" required placeholder="Password">
+          <button id="admin-login-btn" class="admin-btn primary" type="submit">Accedi</button>
+          <p id="admin-login-error" class="admin-login-error" hidden></p>
+        </form>
+      </section>
+      <div id="admin-content" hidden>
+
+      <section class="admin-section"><h3>Aggiungi film</h3><div class="admin-search-row"><input id="tmdb-search" type="search" placeholder="Titolo del film…" autocomplete="off"><button id="tmdb-search-btn" class="admin-btn primary" type="button">Cerca</button></div><div id="tmdb-results" class="tmdb-results"></div></section>
+      <div class="media-add-dialog" id="media-add-dialog" hidden><div class="media-add-inner"><div><p class="admin-eyebrow">Metadati locali</p><h3 id="media-add-title">Aggiungi film</h3></div><label><span>Saga / ciclo</span><input id="add-saga" type="text" placeholder="es. Alien, Star Wars"></label><label><span>Supporto</span><div class="media-checks"><label><input type="checkbox" value="DVD"> DVD</label></div></label><div class="admin-actions"><button id="add-cancel" class="admin-btn" type="button">Annulla</button><button id="add-confirm" class="admin-btn primary" type="button">Aggiungi film</button></div></div></div>
+      <section class="admin-section"><h3>Importazione multipla</h3>
+        <p class="admin-help">Un titolo per riga. Il sistema cerca TMDb senza inserire automaticamente i casi ambigui.</p>
+        <textarea id="bulk-import-input" class="bulk-import-input" rows="7" placeholder="Alien
+Blade Runner
+Arrival
+Interstellar"></textarea>
+        <div class="admin-actions bulk-import-actions">
+          <button id="bulk-import-btn" class="admin-btn primary" type="button">Importa lista</button>
+          <button id="bulk-import-clear" class="admin-btn" type="button">Pulisci</button>
+        </div>
+        <div class="progress-wrap" id="bulk-progress-wrap" hidden><div class="progress-label"><span id="bulk-progress-text">Preparazione…</span><span id="bulk-progress-percent">0%</span></div><div class="progress"><span id="bulk-progress-bar"></span></div></div>
+        <div id="bulk-import-results" class="bulk-import-results"></div>
+      </section>
+      <section class="admin-section"><h3>Catalogo</h3><div class="catalog-filter-row"><input id="catalog-filter" type="search" placeholder="Filtra film presenti…" autocomplete="off"><span class="catalog-count" id="catalog-count">0</span></div><div id="catalog-admin-list" class="catalog-admin-list"></div></section>
+      <section class="admin-section"><h3>Duplicati</h3><div class="admin-actions"><button id="duplicate-scan-btn" class="admin-btn" type="button">⌕ Controlla duplicati</button></div><p id="duplicate-summary" class="duplicate-summary">Non ancora controllato</p><div id="duplicate-results" class="duplicate-results"></div></section>
+      <section class="admin-section"><h3>Aggiornamento</h3><div class="admin-actions"><button id="refresh-all-btn" class="admin-btn" type="button">↻ Aggiorna tutti</button><button id="reload-btn" class="admin-btn" type="button">↻ Ricarica catalogo</button></div><div class="progress-wrap" id="progress-wrap" hidden><div class="progress-label"><span id="progress-text">Preparazione…</span><span id="progress-percent">0%</span></div><div class="progress"><span id="progress-bar"></span></div></div></section>
+      <section class="admin-section"><h3>Backup / Esportazione</h3>
+        <p class="admin-help">Scarica una copia del catalogo corrente. I file vengono generati nel browser e non vengono caricati online.</p>
+        <div class="admin-actions export-actions">
+          <button id="export-json-btn" class="admin-btn primary" type="button">↓ Backup JSON</button>
+          <button id="export-csv-btn" class="admin-btn" type="button">↓ Esporta CSV</button>
+        </div>
+        <p id="export-status" class="admin-help export-status" aria-live="polite"></p>
+      </section>
+      <section class="admin-section stats-section"><h3>Statistiche</h3><div class="stats-grid"><div><strong id="stat-total">—</strong><span>film</span></div><div><strong id="stat-genres">—</strong><span>generi</span></div><div><strong id="stat-directors">—</strong><span>registi</span></div><div><strong id="stat-years">—</strong><span>anni</span></div><div><strong id="stat-with-tmdb">—</strong><span>con TMDb</span></div><div><strong id="stat-runtime">—</strong><span>durata media</span></div><div><strong id="stat-rating">—</strong><span>voto medio</span></div><div><strong id="stat-range">—</strong><span>intervallo anni</span></div></div><div class="stats-detail-grid"><div class="stats-detail"><h4>Generi più presenti</h4><div id="stats-genres-list" class="stats-list"></div></div><div class="stats-detail"><h4>Registi più presenti</h4><div id="stats-directors-list" class="stats-list"></div></div><div class="stats-detail"><h4>Film per decennio</h4><div id="stats-decades-list" class="stats-list"></div></div><div class="stats-detail"><h4>Estremi del catalogo</h4><div id="stats-extremes" class="stats-extremes"></div></div></div></section>
+      <section class="admin-section admin-note"><p>Le operazioni TMDb passano dalle Edge Functions di Supabase. Il browser non contiene mai il token TMDb né la service-role key.</p></section>
+      <section class="admin-section admin-session"><button id="admin-logout" class="admin-btn" type="button">Esci dall'area Admin</button></section>
+      </div>
+
+      <div class="media-edit-dialog" id="media-edit-dialog" hidden>
+        <div class="media-add-inner">
+          <div><p class="admin-eyebrow">Metadati locali</p><h3 id="edit-title">Modifica film</h3></div>
+          <label><span>Saga / ciclo</span><input id="edit-saga" type="text" placeholder="es. Alien, Star Wars"></label>
+          <label><span>Supporto</span><div class="media-checks" id="edit-media-checks">
+            <label><input type="checkbox" value="DVD"> DVD</label>
+            
+            
+          </div></label>
+          <div class="admin-actions"><button id="edit-cancel" class="admin-btn" type="button">Annulla</button><button id="edit-confirm" class="admin-btn primary" type="button">Salva modifiche</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="js/app.js?v=1.2.0-alpha.15"></script>
+</body>
+</html>
