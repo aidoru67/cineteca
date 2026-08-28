@@ -151,8 +151,16 @@ export function openModal(f) {
     : '';
   const year = f.year ? `<div class="modal-info"><span class="modal-label">Anno</span><span>${f.year}</span></div>` : '';
   const director = f.director ? `<div class="modal-info"><span class="modal-label">Regia</span><span>${esc(f.director)}</span></div>` : '';
+  const rating = Number.isFinite(Number(f.vote_average)) && Number(f.vote_average) > 0
+    ? `<div class="modal-info"><span class="modal-label">Voto TMDb</span><span>★ ${Number(f.vote_average).toFixed(1)}/10</span></div>`
+    : '';
+  const cast = Array.isArray(f.cast_names) && f.cast_names.length
+    ? `<div class="modal-section"><span class="modal-label">Cast</span><div class="modal-cast">${f.cast_names.map(name => `<span class="modal-cast-name">${esc(name)}</span>`).join('')}</div></div>`
+    : '';
+  const tagline = f.tagline ? `<div class="modal-tagline">“${esc(f.tagline)}”</div>` : '';
+  const tmdbLink = f.tmdb_id ? `<a class="modal-tmdb-link" href="https://www.themoviedb.org/movie/${encodeURIComponent(f.tmdb_id)}" target="_blank" rel="noopener noreferrer">Vedi su TMDb ↗</a>` : '';
 
-  modal.innerHTML=`${poster}<div class="modal-content"><h2 id="modal-title" class="modal-title">${esc(f.title)}</h2>${originalTitle}<div class="modal-details">${year}${duration}${director}</div>${genres?`<div class="modal-tags">${genres}</div>`:''}${f.synopsis?`<p class="modal-synopsis">${esc(f.synopsis)}</p>`:''}<button class="modal-close" type="button">Chiudi</button></div>`;
+  modal.innerHTML=`${poster}<div class="modal-content"><h2 id="modal-title" class="modal-title">${esc(f.title)}</h2>${tagline}${originalTitle}<div class="modal-details">${year}${duration}${director}${rating}</div>${genres?`<div class="modal-tags">${genres}</div>`:''}${cast}${f.synopsis?`<p class="modal-synopsis">${esc(f.synopsis)}</p>`:''}<div class="modal-actions">${tmdbLink}<button class="modal-close" type="button">Chiudi</button></div></div>`;
   modal.querySelector('.modal-close').addEventListener('click',closeModal);
   modal.querySelectorAll('.modal-tag').forEach(b=>b.addEventListener('click',()=>{closeModal();const g=b.dataset.genre;activeGenres.add(g);updateTagUI();render();onFilterChanged();document.querySelector('.controls').scrollIntoView({behavior:'smooth'});}));
   document.getElementById('modal-overlay').classList.add('open');document.getElementById('modal-overlay').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';

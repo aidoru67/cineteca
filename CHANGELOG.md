@@ -61,3 +61,8 @@
 - Selezione record principale.
 - Unione dei dati mancanti tramite Edge Function `merge-films`.
 - Eliminazione dei duplicati solo dopo conferma.
+
+## 1.2.0-alpha.5
+- Scheda film evoluta con voto TMDb, tagline, cast principale e link diretto a TMDb.
+- `refresh-film` ora sincronizza anche `tagline` e i primi 8 attori principali.
+- Aggiunta migrazione SQL per `tagline` e `cast_names`.
