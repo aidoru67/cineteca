@@ -83,3 +83,8 @@
 - Ridotti i supporti disponibili a HD e DVD.
 - Rimossi Blu-ray e Streaming dai moduli di inserimento/modifica e dai filtri.
 - I vecchi dati eventualmente presenti non vengono visualizzati come nuove opzioni.
+
+## 1.2.0-alpha.10
+- Added quick saga/cycle filter.
+- Added catalog sorting by title, year, TMDb rating and runtime.
+- Kept existing advanced search filters compatible.

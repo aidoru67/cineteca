@@ -3,6 +3,8 @@ import { esc, fallbackPoster } from './utils.js';
 let films = [];
 let activeGenres = new Set();
 let dvdOnly = false;
+let quickSaga = '';
+let sortMode = 'title-asc';
 let searchQuery = '';
 let advancedFilters = { yearFrom:null, yearTo:null, director:'', original:'', runtimeFrom:null, runtimeTo:null, genre:'', saga:'', media:'' };
 let onFilterChanged = () => {};
@@ -13,6 +15,7 @@ export function getActiveGenres() { return activeGenres; }
 export function setFilterListener(fn) { onFilterChanged = fn; }
 
 export function buildTags() {
+
   const all = new Set();
   films.forEach(f => (f.genres || []).forEach(g => all.add(g)));
   const container = document.getElementById('tags');
@@ -29,11 +32,28 @@ export function buildTags() {
   if (window.innerWidth >= 641) openPanel();
 }
 
+export function buildSagaTags() {
+  const all = new Set();
+  films.forEach(f => { if (f.saga) all.add(f.saga); (f.sagas || []).forEach(s => all.add(s)); });
+  const container = document.getElementById('sagas');
+  if (!container) return;
+  container.innerHTML = '';
+  const clear = document.createElement('button'); clear.className='tag tag-clear'; clear.type='button'; clear.textContent='✕ tutte';
+  clear.addEventListener('click',()=>setQuickSaga('')); container.appendChild(clear);
+  [...all].sort((a,b)=>a.localeCompare(b,'it')).forEach(saga=>{
+    const btn=document.createElement('button'); btn.className='tag'; btn.type='button'; btn.dataset-saga=saga; btn.textContent=saga;
+    btn.addEventListener('click',()=>setQuickSaga(quickSaga===saga?'':saga)); container.appendChild(btn);
+  });
+}
+
 export function setDvdOnly(value){ dvdOnly=Boolean(value); updateDvdUI(); render(); onFilterChanged(); }
+export function setQuickSaga(value){ quickSaga=value || ''; updateQuickSagaUI(); render(); onFilterChanged(); }
+export function updateQuickSagaUI(){ const b=document.getElementById('saga-toggle'); if(!b)return; b.classList.toggle('has-active',!!quickSaga); b.setAttribute('aria-expanded',String(!!quickSaga)); }
 export function updateDvdUI() { const b=document.getElementById('dvd-toggle'); if(!b) return; b.classList.toggle('has-active',dvdOnly); b.setAttribute('aria-pressed',String(dvdOnly)); }
 
 export function updateTagUI() {
   document.querySelectorAll('.tag[data-genre]').forEach(b => b.classList.toggle('active', activeGenres.has(b.dataset.genre)));
+  document.querySelectorAll('.tag[data-saga]').forEach(b => b.classList.toggle('active', b.dataset.saga===quickSaga));
   const n=activeGenres.size; document.getElementById('genre-toggle').classList.toggle('has-active',n>0); document.getElementById('genre-badge').textContent=n;
 }
 
@@ -110,6 +130,7 @@ function filtered() {
   const a=advancedFilters;
   return films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
+    if(quickSaga && !((f.saga && f.saga===quickSaga) || (f.sagas||[]).includes(quickSaga))) return false;
     if(dvdOnly && !((f.media_type||'').toUpperCase()==='DVD' || (f.media_types||[]).some(g=>String(g).toUpperCase()==='DVD'))) return false;
     if(q && searchScore(f, q) < 0.32) return false;
     if(a.genre && !(f.genres||[]).some(g=>g===a.genre)) return false;
@@ -122,7 +143,20 @@ function filtered() {
     if(a.runtimeFrom && (!f.runtime || Number(f.runtime)<a.runtimeFrom)) return false;
     if(a.runtimeTo && (!f.runtime || Number(f.runtime)>a.runtimeTo)) return false;
     return true;
-  }).sort((x, y) => q ? searchScore(y, q) - searchScore(x, q) : normalizeText(x.title).localeCompare(normalizeText(y.title), 'it'));
+  });
+  if (q) list.sort((x,y)=>searchScore(y,q)-searchScore(x,q));
+  else list.sort((x,y)=>{
+    switch(sortMode){
+      case 'title-desc': return normalizeText(y.title).localeCompare(normalizeText(x.title),'it');
+      case 'year-asc': return (x.year||9999)-(y.year||9999) || normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
+      case 'year-desc': return (y.year||0)-(x.year||0) || normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
+      case 'rating-desc': return (Number(y.vote_average)||0)-(Number(x.vote_average)||0) || normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
+      case 'runtime-desc': return (Number(y.runtime)||0)-(Number(x.runtime)||0) || normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
+      case 'runtime-asc': return (Number(x.runtime)||9999)-(Number(y.runtime)||9999) || normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
+      default: return normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
+    }
+  });
+  return list;
 }
 
 export function setSearch(value){searchQuery=value;render()}
@@ -131,6 +165,8 @@ export function getAdvancedFilters(){return {...advancedFilters}}
 export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getAllSagas(){const all=new Set();films.forEach(f=>{if(f.saga)all.add(f.saga);(f.sagas||[]).forEach(g=>all.add(g))});return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getAllMediaTypes(){const order=['HD','DVD']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
+export function setSortMode(value){sortMode=value||'title-asc'; render();}
+export function getSortMode(){return sortMode;}
 export function getFilteredCount(){return filtered().length}
 
 export function render() {
