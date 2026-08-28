@@ -34,38 +34,7 @@ async function request(url, options = {}) {
 }
 
 export async function loadFilms() {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
-  try {
-    // Il catalogo pubblico non richiede una sessione Auth.
-    // Evitiamo quindi getSession() qui: un blocco dell'Auth client non deve
-    // mai impedire il caricamento della Cineteca.
-    const response = await fetch(
-      `${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`,
-      {
-        method: 'GET',
-        headers: {
-          apikey: CONFIG.supabaseAnonKey,
-          Accept: 'application/json'
-        },
-        signal: controller.signal
-      }
-    );
-    const text = await response.text();
-    let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-    if (!response.ok) {
-      const error = new Error(data?.message || data?.error || `HTTP ${response.status}`);
-      error.status = response.status;
-      throw error;
-    }
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    if (e?.name === 'AbortError') throw new Error('Timeout durante il caricamento del catalogo');
-    throw e;
-  } finally {
-    clearTimeout(timeout);
-  }
+  return request(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`);
 }
 
 export async function searchFilm(title) {

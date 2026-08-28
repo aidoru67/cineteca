@@ -23,11 +23,11 @@
       <input type="search" id="search" placeholder="Cerca titolo, regista…" autocomplete="off">
     </div>
     <button class="genre-toggle" id="genre-toggle" type="button">Generi <span class="arrow">▾</span><span class="genre-badge" id="genre-badge">0</span></button>
-    <button class="genre-toggle dvd-toggle" id="dvd-toggle" type="button" aria-pressed="false">DVD</button><button class="genre-toggle saga-toggle" id="saga-toggle" type="button" aria-expanded="false">Saghe <span class="arrow">▾</span></button><button class="genre-toggle advanced-toggle" id="advanced-toggle" type="button" aria-expanded="false">Filtri <span class="arrow">▾</span></button>
+    <button class="genre-toggle dvd-toggle" id="dvd-toggle" type="button" aria-pressed="false">DVD</button><button class="genre-toggle advanced-toggle" id="advanced-toggle" type="button" aria-expanded="false">Filtri <span class="arrow">▾</span></button>
     <span class="count" id="count"><span>0</span> film</span>
     <button class="admin-open" id="admin-open" type="button" title="Amministrazione">⚙</button>
   </div>
-  <div class="tags-panel" id="tags-panel"><div class="tags-inner" id="tags"></div></div><div class="tags-panel saga-panel" id="saga-panel"><div class="tags-inner" id="sagas"></div></div>
+  <div class="tags-panel" id="tags-panel"><div class="tags-inner" id="tags"></div></div>
   <div class="advanced-panel" id="advanced-panel">
     <div class="advanced-grid">
       <label><span>Regista</span><input id="advanced-director" type="search" placeholder="es. Kubrick"></label>
@@ -39,7 +39,7 @@
       <label><span>Genere</span><select id="advanced-genre"><option value="">Tutti i generi</option></select></label>
       <label><span>Saga / ciclo</span><select id="advanced-saga"><option value="">Tutte le saghe</option></select></label>
       <label><span>Supporto</span><select id="advanced-media"><option value="">Tutti i supporti</option></select></label>
-      <div class="advanced-actions"><button class="tag tag-clear" id="advanced-clear" type="button">✕ reset filtri</button></div><label class="sort-field"><span>Ordina</span><select id="sort-select"><option value="title-asc">Titolo A → Z</option><option value="title-desc">Titolo Z → A</option><option value="year-asc">Anno crescente</option><option value="year-desc">Anno decrescente</option><option value="rating-desc">Voto TMDb</option><option value="runtime-desc">Durata ↓</option><option value="runtime-asc">Durata ↑</option></select></label>
+      <div class="advanced-actions"><button class="tag tag-clear" id="advanced-clear" type="button">✕ reset filtri</button></div>
     </div>
   </div>
 </div>
@@ -117,6 +117,6 @@ Interstellar"></textarea>
 </aside>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="js/app.js?v=1.2.0-alpha.15"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
