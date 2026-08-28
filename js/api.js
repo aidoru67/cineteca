@@ -46,8 +46,7 @@ export async function loadFilms() {
         method: 'GET',
         headers: {
           apikey: CONFIG.supabaseAnonKey,
-          Authorization: `Bearer ${CONFIG.supabaseAnonKey}`,
-          'Content-Type': 'application/json'
+          Accept: 'application/json'
         },
         signal: controller.signal
       }
