@@ -1,3 +1,4 @@
+- 1.2.0-alpha.6: added saga/cycle labels, physical/media support labels, filters, and add-film metadata selection.
 # Changelog
 
 ## 1.2.0-alpha.4

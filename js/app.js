@@ -5,13 +5,13 @@ import { showToast } from './ui.js';
 import { updateStats } from './stats.js';
 import { initAdmin } from './admin.js';
 import { initExport } from './export.js';
-import { initAdvancedSearch, refreshGenres } from './advanced-search.js';
+import { initAdvancedSearch, refreshGenres, refreshCollections } from './advanced-search.js';
 
 async function loadCatalog(){
   const grid=document.getElementById('grid');
   try{
     const data=await api.loadFilms();
-    films.setFilms(data);films.buildTags();films.updateTagUI();refreshGenres(films.getAllGenres());films.render();
+    films.setFilms(data);films.buildTags();films.updateTagUI();refreshGenres(films.getAllGenres());refreshCollections(films.getAllSagas(), films.getAllMediaTypes());films.render();
     document.getElementById('header-count').textContent=`${data.length} film · ordinati per titolo`;
     updateStats(data);
   }catch(e){grid.innerHTML=`<div class="state-msg"><strong>!</strong>Errore: ${escapeText(e.message)}<br><small>Controlla la configurazione Supabase.</small></div>`}

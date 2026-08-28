@@ -37,6 +37,8 @@
       <label><span>Durata min</span><input id="advanced-runtime-from" type="number" min="1" max="999" placeholder="min"></label>
       <label><span>Durata max</span><input id="advanced-runtime-to" type="number" min="1" max="999" placeholder="max"></label>
       <label><span>Genere</span><select id="advanced-genre"><option value="">Tutti i generi</option></select></label>
+      <label><span>Saga / ciclo</span><select id="advanced-saga"><option value="">Tutte le saghe</option></select></label>
+      <label><span>Supporto</span><select id="advanced-media"><option value="">Tutti i supporti</option></select></label>
       <div class="advanced-actions"><button class="tag tag-clear" id="advanced-clear" type="button">✕ reset filtri</button></div>
     </div>
   </div>
@@ -68,6 +70,7 @@
       <div id="admin-content" hidden>
 
       <section class="admin-section"><h3>Aggiungi film</h3><div class="admin-search-row"><input id="tmdb-search" type="search" placeholder="Titolo del film…" autocomplete="off"><button id="tmdb-search-btn" class="admin-btn primary" type="button">Cerca</button></div><div id="tmdb-results" class="tmdb-results"></div></section>
+      <div class="media-add-dialog" id="media-add-dialog" hidden><div class="media-add-inner"><div><p class="admin-eyebrow">Metadati locali</p><h3 id="media-add-title">Aggiungi film</h3></div><label><span>Saga / ciclo</span><input id="add-saga" type="text" placeholder="es. Alien, Star Wars"></label><label><span>Supporto</span><div class="media-checks"><label><input type="checkbox" value="HD"> HD</label><label><input type="checkbox" value="DVD"> DVD</label><label><input type="checkbox" value="Blu-ray"> Blu-ray</label><label><input type="checkbox" value="Streaming"> Streaming</label></div></label><div class="admin-actions"><button id="add-cancel" class="admin-btn" type="button">Annulla</button><button id="add-confirm" class="admin-btn primary" type="button">Aggiungi film</button></div></div></div>
       <section class="admin-section"><h3>Importazione multipla</h3>
         <p class="admin-help">Un titolo per riga. Il sistema cerca TMDb senza inserire automaticamente i casi ambigui.</p>
         <textarea id="bulk-import-input" class="bulk-import-input" rows="7" placeholder="Alien

@@ -8,6 +8,7 @@ let getCatalog = () => [];
 let panel;
 let loginView;
 let contentView;
+let pendingAddMovie = null;
 
 export function initAdmin(reloadFn) {
   reloadCatalog = reloadFn;
@@ -33,6 +34,8 @@ export function initAdmin(reloadFn) {
   });
   document.getElementById('admin-login-form').addEventListener('submit', handleLogin);
   document.getElementById('admin-logout').addEventListener('click', async () => { try { await api.adminLogout(); } finally { showLogin(); } });
+  document.getElementById('add-cancel').addEventListener('click', closeAddDialog);
+  document.getElementById('add-confirm').addEventListener('click', confirmAddDialog);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 }
 
@@ -115,7 +118,7 @@ function renderCatalogAdmin() {
   filtered.forEach(movie => {
     const row = document.createElement('div');
     row.className = 'catalog-admin-row';
-    row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="" loading="lazy">` : '<div class="no-thumb"></div>'}<div class="catalog-admin-info"><div class="catalog-admin-title">${esc(movie.title)}</div><div class="catalog-admin-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</div></div><button class="admin-btn" type="button">↻</button>`;
+    row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="" loading="lazy">` : '<div class="no-thumb"></div>'}<div class="catalog-admin-info"><div class="catalog-admin-title">${esc(movie.title)}</div><div class="catalog-admin-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</div>${(movie.sagas||[]).length ? `<div class="catalog-admin-tags">${movie.sagas.map(x=>`<span>${esc(x)}</span>`).join('')}</div>` : ''}</div><button class="admin-btn" type="button">↻</button>`;
     row.querySelector('button').addEventListener('click', () => refreshOne(movie, row));
     box.appendChild(row);
   });
@@ -282,17 +285,45 @@ async function search() {
 }
 
 async function add(movie, row) {
-  const btn = row.querySelector('button');
-  btn.disabled = true; btn.textContent = '…';
+  openAddDialog(movie, row);
+}
+
+function openAddDialog(movie, row) {
+  pendingAddMovie = { movie, row };
+  document.getElementById('media-add-title').textContent = `Aggiungi: ${movie.title}`;
+  document.getElementById('add-saga').value = '';
+  document.querySelectorAll('#media-add-dialog .media-checks input').forEach(i => { i.checked = false; });
+  document.getElementById('media-add-dialog').hidden = false;
+  document.getElementById('add-saga').focus();
+}
+
+function closeAddDialog() {
+  pendingAddMovie = null;
+  document.getElementById('media-add-dialog').hidden = true;
+}
+
+async function confirmAddDialog() {
+  if (!pendingAddMovie) return;
+  const { movie, row } = pendingAddMovie;
+  const saga = document.getElementById('add-saga').value.trim();
+  const mediaTypes = [...document.querySelectorAll('#media-add-dialog .media-checks input:checked')].map(i => i.value);
+  const btn = document.getElementById('add-confirm');
+  btn.disabled = true; btn.textContent = 'Aggiunta…';
   try {
-    const result = await api.addFilm(movie.tmdb_id);
+    const result = await api.addFilm(movie.tmdb_id, saga, mediaTypes);
+    closeAddDialog();
     if (result.inserted) {
+      await reloadCatalog();
+      renderCatalogAdmin();
       showToast(`${movie.title} aggiunto`);
-      await reloadCatalog(); renderCatalogAdmin(); btn.textContent = '✓';
-    } else { showToast('Film già presente'); btn.textContent = '↻'; btn.disabled = false; }
+      if (row) { row.querySelector('button').textContent = '✓'; row.querySelector('button').disabled = true; }
+    } else {
+      showToast('Film già presente');
+    }
   } catch (e) {
     if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
-    btn.disabled = false; btn.textContent = '+';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Aggiungi film';
   }
 }
 
