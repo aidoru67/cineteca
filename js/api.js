@@ -10,10 +10,20 @@ export const supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey,
 });
 
 async function getAuthHeaders(extra = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
+  let accessToken = CONFIG.supabaseAnonKey;
+  try {
+    const result = await Promise.race([
+      supabase.auth.getSession(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('auth session timeout')), 2000))
+    ]);
+    const session = result?.data?.session;
+    if (session?.access_token) accessToken = session.access_token;
+  } catch {
+    // Public catalog access must not depend on Supabase Auth.
+  }
   return {
     apikey: CONFIG.supabaseAnonKey,
-    Authorization: `Bearer ${session?.access_token || CONFIG.supabaseAnonKey}`,
+    Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     ...extra
   };
@@ -34,7 +44,16 @@ async function request(url, options = {}) {
 }
 
 export async function loadFilms() {
-  return request(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`);
+  const response = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`, {
+    headers: { apikey: CONFIG.supabaseAnonKey, Accept: 'application/json' }
+  });
+  const text = await response.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || `HTTP ${response.status}`);
+  }
+  return data;
 }
 
 export async function searchFilm(title) {
