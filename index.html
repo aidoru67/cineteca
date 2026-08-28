@@ -99,6 +99,20 @@ Interstellar"></textarea>
       <section class="admin-section admin-note"><p>Le operazioni TMDb passano dalle Edge Functions di Supabase. Il browser non contiene mai il token TMDb né la service-role key.</p></section>
       <section class="admin-section admin-session"><button id="admin-logout" class="admin-btn" type="button">Esci dall'area Admin</button></section>
       </div>
+
+      <div class="media-edit-dialog" id="media-edit-dialog" hidden>
+        <div class="media-add-inner">
+          <div><p class="admin-eyebrow">Metadati locali</p><h3 id="edit-title">Modifica film</h3></div>
+          <label><span>Saga / ciclo</span><input id="edit-saga" type="text" placeholder="es. Alien, Star Wars"></label>
+          <label><span>Supporto</span><div class="media-checks" id="edit-media-checks">
+            <label><input type="checkbox" value="HD"> HD</label>
+            <label><input type="checkbox" value="DVD"> DVD</label>
+            <label><input type="checkbox" value="Blu-ray"> Blu-ray</label>
+            <label><input type="checkbox" value="Streaming"> Streaming</label>
+          </div></label>
+          <div class="admin-actions"><button id="edit-cancel" class="admin-btn" type="button">Annulla</button><button id="edit-confirm" class="admin-btn primary" type="button">Salva modifiche</button></div>
+        </div>
+      </div>
     </div>
   </section>
 </aside>

@@ -9,6 +9,7 @@ let panel;
 let loginView;
 let contentView;
 let pendingAddMovie = null;
+let pendingEditMovie = null;
 
 export function initAdmin(reloadFn) {
   reloadCatalog = reloadFn;
@@ -36,6 +37,8 @@ export function initAdmin(reloadFn) {
   document.getElementById('admin-logout').addEventListener('click', async () => { try { await api.adminLogout(); } finally { showLogin(); } });
   document.getElementById('add-cancel').addEventListener('click', closeAddDialog);
   document.getElementById('add-confirm').addEventListener('click', confirmAddDialog);
+  document.getElementById('edit-cancel').addEventListener('click', closeEditDialog);
+  document.getElementById('edit-confirm').addEventListener('click', confirmEditDialog);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 }
 
@@ -118,10 +121,48 @@ function renderCatalogAdmin() {
   filtered.forEach(movie => {
     const row = document.createElement('div');
     row.className = 'catalog-admin-row';
-    row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="" loading="lazy">` : '<div class="no-thumb"></div>'}<div class="catalog-admin-info"><div class="catalog-admin-title">${esc(movie.title)}</div><div class="catalog-admin-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</div>${(movie.sagas||[]).length ? `<div class="catalog-admin-tags">${movie.sagas.map(x=>`<span>${esc(x)}</span>`).join('')}</div>` : ''}</div><button class="admin-btn" type="button">↻</button>`;
-    row.querySelector('button').addEventListener('click', () => refreshOne(movie, row));
+    const sagaTags = movie.saga ? [movie.saga] : (movie.sagas || []);
+    const mediaTags = movie.media_type ? [movie.media_type] : (movie.media_types || []);
+    row.innerHTML = `${movie.poster_url ? `<img src="${esc(movie.poster_url)}" alt="" loading="lazy">` : '<div class="no-thumb"></div>'}<div class="catalog-admin-info"><div class="catalog-admin-title">${esc(movie.title)}</div><div class="catalog-admin-meta">${movie.year || '—'} · TMDb ${movie.tmdb_id || '—'}</div><div class="catalog-admin-tags">${sagaTags.map(x=>`<span>${esc(x)}</span>`).join('')}${mediaTags.map(x=>`<span>${esc(x)}</span>`).join('')}</div></div><div class="catalog-admin-actions"><button class="admin-btn edit-film-btn" type="button" title="Modifica">✎</button><button class="admin-btn refresh-film-btn" type="button" title="Aggiorna da TMDb">↻</button></div>`;
+    row.querySelector('.edit-film-btn').addEventListener('click', () => openEditDialog(movie));
+    row.querySelector('.refresh-film-btn').addEventListener('click', () => refreshOne(movie, row));
     box.appendChild(row);
   });
+}
+
+function openEditDialog(movie) {
+  pendingEditMovie = movie;
+  document.getElementById('edit-title').textContent = `Modifica: ${movie.title}`;
+  document.getElementById('edit-saga').value = movie.saga || movie.sagas?.[0] || '';
+  const selected = movie.media_types || (movie.media_type ? [movie.media_type] : []);
+  document.querySelectorAll('#edit-media-checks input').forEach(input => { input.checked = selected.includes(input.value); });
+  document.getElementById('media-edit-dialog').hidden = false;
+  document.getElementById('edit-saga').focus();
+}
+
+function closeEditDialog() {
+  pendingEditMovie = null;
+  document.getElementById('media-edit-dialog').hidden = true;
+}
+
+async function confirmEditDialog() {
+  if (!pendingEditMovie) return;
+  const movie = pendingEditMovie;
+  const saga = document.getElementById('edit-saga').value.trim();
+  const mediaTypes = [...document.querySelectorAll('#edit-media-checks input:checked')].map(i => i.value);
+  const btn = document.getElementById('edit-confirm');
+  btn.disabled = true; btn.textContent = 'Salvataggio…';
+  try {
+    await api.editFilm(movie.id, saga, mediaTypes);
+    closeEditDialog();
+    await reloadCatalog();
+    renderCatalogAdmin();
+    showToast(`${movie.title} modificato`);
+  } catch (e) {
+    if (!(await handleAuthError(e))) showToast(`Errore: ${e.message}`, 5000);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salva modifiche';
+  }
 }
 
 async function refreshOne(movie, row) {

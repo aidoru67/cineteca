@@ -67,3 +67,8 @@
 - Scheda film evoluta con voto TMDb, tagline, cast principale e link diretto a TMDb.
 - `refresh-film` ora sincronizza anche `tagline` e i primi 8 attori principali.
 - Aggiunta migrazione SQL per `tagline` e `cast_names`.
+
+## v1.2.0-alpha.7
+- Added editing of local Saga/Ciclo and Supporto metadata for existing films.
+- Added `edit-film` Edge Function integration.
+- Preserved local metadata during TMDb refresh.

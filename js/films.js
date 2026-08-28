@@ -108,8 +108,8 @@ function filtered() {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
     if(q && searchScore(f, q) < 0.32) return false;
     if(a.genre && !(f.genres||[]).some(g=>g===a.genre)) return false;
-    if(a.saga && !(f.sagas||[]).some(g=>g===a.saga)) return false;
-    if(a.media && !(f.media_types||[]).some(g=>g===a.media)) return false;
+    if(a.saga && !((f.saga && f.saga===a.saga) || (f.sagas||[]).some(g=>g===a.saga))) return false;
+    if(a.media && !((f.media_type && f.media_type===a.media) || (f.media_types||[]).some(g=>g===a.media))) return false;
     if(a.director && !tokenScore(a.director, f.director)) return false;
     if(a.original && !tokenScore(a.original, f.original_title)) return false;
     if(a.yearFrom && (!f.year || Number(f.year)<a.yearFrom)) return false;
@@ -124,8 +124,8 @@ export function setSearch(value){searchQuery=value;render()}
 export function setAdvancedFilters(value){advancedFilters={...advancedFilters,...value};render()}
 export function getAdvancedFilters(){return {...advancedFilters}}
 export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
-export function getAllSagas(){const all=new Set();films.forEach(f=>(f.sagas||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
-export function getAllMediaTypes(){const order=['HD','DVD','Blu-ray','Streaming']; const all=new Set();films.forEach(f=>(f.media_types||[]).forEach(g=>all.add(g))); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
+export function getAllSagas(){const all=new Set();films.forEach(f=>{if(f.saga)all.add(f.saga);(f.sagas||[]).forEach(g=>all.add(g))});return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
+export function getAllMediaTypes(){const order=['HD','DVD','Blu-ray','Streaming']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
 export function getFilteredCount(){return filtered().length}
 
 export function render() {
@@ -166,7 +166,7 @@ export function openModal(f) {
   const tagline = f.tagline ? `<div class="modal-tagline">“${esc(f.tagline)}”</div>` : '';
   const tmdbLink = f.tmdb_id ? `<a class="modal-tmdb-link" href="https://www.themoviedb.org/movie/${encodeURIComponent(f.tmdb_id)}" target="_blank" rel="noopener noreferrer">Vedi su TMDb ↗</a>` : '';
 
-  modal.innerHTML=`${poster}<div class="modal-content"><h2 id="modal-title" class="modal-title">${esc(f.title)}</h2>${tagline}${originalTitle}<div class="modal-details">${year}${duration}${director}${rating}</div>${genres?`<div class="modal-tags">${genres}</div>`:''}${f.sagas?.length?`<div class="modal-section"><span class="modal-label">Saga / ciclo</span><div class="modal-cast">${f.sagas.map(s=>`<span class="modal-cast-name">${esc(s)}</span>`).join('')}</div></div>`:''}${f.media_types?.length?`<div class="modal-section"><span class="modal-label">Supporto</span><div class="modal-cast">${f.media_types.map(s=>`<span class="modal-cast-name">${esc(s)}</span>`).join('')}</div></div>`:''}${cast}${f.synopsis?`<p class="modal-synopsis">${esc(f.synopsis)}</p>`:''}<div class="modal-actions">${tmdbLink}<button class="modal-close" type="button">Chiudi</button></div></div>`;
+  modal.innerHTML=`${poster}<div class="modal-content"><h2 id="modal-title" class="modal-title">${esc(f.title)}</h2>${tagline}${originalTitle}<div class="modal-details">${year}${duration}${director}${rating}</div>${genres?`<div class="modal-tags">${genres}</div>`:''}${(f.saga || f.sagas?.length)?`<div class="modal-section"><span class="modal-label">Saga / ciclo</span><div class="modal-cast">${[...(f.saga?[f.saga]:[]),...(f.sagas||[])].filter((v,i,a)=>a.indexOf(v)===i).map(s=>`<span class="modal-cast-name">${esc(s)}</span>`).join('')}</div></div>`:''}${(f.media_type || f.media_types?.length)?`<div class="modal-section"><span class="modal-label">Supporto</span><div class="modal-cast">${[...(f.media_type?[f.media_type]:[]),...(f.media_types||[])].filter((v,i,a)=>a.indexOf(v)===i).map(s=>`<span class="modal-cast-name">${esc(s)}</span>`).join('')}</div></div>`:''}${cast}${f.synopsis?`<p class="modal-synopsis">${esc(f.synopsis)}</p>`:''}<div class="modal-actions">${tmdbLink}<button class="modal-close" type="button">Chiudi</button></div></div>`;
   modal.querySelector('.modal-close').addEventListener('click',closeModal);
   modal.querySelectorAll('.modal-tag').forEach(b=>b.addEventListener('click',()=>{closeModal();const g=b.dataset.genre;activeGenres.add(g);updateTagUI();render();onFilterChanged();document.querySelector('.controls').scrollIntoView({behavior:'smooth'});}));
   document.getElementById('modal-overlay').classList.add('open');document.getElementById('modal-overlay').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
