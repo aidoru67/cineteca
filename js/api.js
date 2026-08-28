@@ -34,23 +34,7 @@ async function request(url, options = {}) {
 }
 
 export async function loadFilms() {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  try {
-    const response = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`, {
-      headers: { apikey: CONFIG.supabaseAnonKey, Authorization: `Bearer ${CONFIG.supabaseAnonKey}` },
-      signal: controller.signal
-    });
-    const text = await response.text();
-    let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-    if (!response.ok) throw new Error(data?.message || data?.error || `HTTP ${response.status}`);
-    if (!Array.isArray(data)) throw new Error("Risposta catalogo non valida");
-    return data;
-  } catch (e) {
-    if (e?.name === "AbortError") throw new Error("Timeout connessione a Supabase");
-    throw e;
-  } finally { clearTimeout(timer); }
+  return request(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`);
 }
 
 export async function searchFilm(title) {

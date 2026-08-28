@@ -128,7 +128,7 @@ function searchScore(f, query) {
 function filtered() {
   const q=searchQuery.trim();
   const a=advancedFilters;
-  const list = films.filter(f => {
+  const result=films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
     if(quickSaga && !((f.saga && f.saga===quickSaga) || (f.sagas||[]).includes(quickSaga))) return false;
     if(dvdOnly && !((f.media_type||'').toUpperCase()==='DVD' || (f.media_types||[]).some(g=>String(g).toUpperCase()==='DVD'))) return false;
@@ -144,8 +144,8 @@ function filtered() {
     if(a.runtimeTo && (!f.runtime || Number(f.runtime)>a.runtimeTo)) return false;
     return true;
   });
-  if (q) list.sort((x,y)=>searchScore(y,q)-searchScore(x,q));
-  else list.sort((x,y)=>{
+  if (q) result.sort((x,y)=>searchScore(y,q)-searchScore(x,q));
+  else result.sort((x,y)=>{
     switch(sortMode){
       case 'title-desc': return normalizeText(y.title).localeCompare(normalizeText(x.title),'it');
       case 'year-asc': return (x.year||9999)-(y.year||9999) || normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
@@ -156,7 +156,7 @@ function filtered() {
       default: return normalizeText(x.title).localeCompare(normalizeText(y.title),'it');
     }
   });
-  return list;
+  return result;
 }
 
 export function setSearch(value){searchQuery=value;render()}
