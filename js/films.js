@@ -125,7 +125,7 @@ export function setAdvancedFilters(value){advancedFilters={...advancedFilters,..
 export function getAdvancedFilters(){return {...advancedFilters}}
 export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getAllSagas(){const all=new Set();films.forEach(f=>{if(f.saga)all.add(f.saga);(f.sagas||[]).forEach(g=>all.add(g))});return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
-export function getAllMediaTypes(){const order=['HD','DVD','Blu-ray','Streaming']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
+export function getAllMediaTypes(){const order=['HD','DVD']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
 export function getFilteredCount(){return filtered().length}
 
 export function render() {

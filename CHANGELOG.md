@@ -72,3 +72,8 @@
 - Added editing of local Saga/Ciclo and Supporto metadata for existing films.
 - Added `edit-film` Edge Function integration.
 - Preserved local metadata during TMDb refresh.
+
+## 1.2.0-alpha.8
+- Ridotti i supporti disponibili a HD e DVD.
+- Rimossi Blu-ray e Streaming dai moduli di inserimento/modifica e dai filtri.
+- I vecchi dati eventualmente presenti non vengono visualizzati come nuove opzioni.
