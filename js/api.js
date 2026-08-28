@@ -42,11 +42,11 @@ export async function searchFilm(title) {
 }
 
 export async function addFilm(tmdb_id, saga = '', mediaTypes = []) {
-  return request(`${CONFIG.supabaseUrl}/functions/v1/add-film`, { method:'POST', body:JSON.stringify({ tmdb_id, saga, media_types: mediaTypes }) });
+  return request(`${CONFIG.supabaseUrl}/functions/v1/add-film`, { method:'POST', body:JSON.stringify({ tmdb_id, saga, media_types: mediaTypes.includes('DVD') ? ['DVD'] : [] }) });
 }
 
 export async function editFilm(id, saga = '', mediaTypes = []) {
-  return request(`${CONFIG.supabaseUrl}/functions/v1/edit-film`, { method:'POST', body:JSON.stringify({ id, saga, media_types: mediaTypes }) });
+  return request(`${CONFIG.supabaseUrl}/functions/v1/edit-film`, { method:'POST', body:JSON.stringify({ id, saga, media_types: mediaTypes.includes('DVD') ? ['DVD'] : [] }) });
 }
 
 export async function refreshFilm(tmdb_id) {

@@ -5,6 +5,7 @@ let getState = () => ({});
 let genreSelect;
 let sagaSelect;
 let mediaSelect;
+let dvdToggle;
 
 export function initAdvancedSearch({ onChange, getFilters, getGenres }) {
   applyFilters = onChange;
@@ -15,6 +16,7 @@ export function initAdvancedSearch({ onChange, getFilters, getGenres }) {
   genreSelect = document.getElementById('advanced-genre');
   sagaSelect = document.getElementById('advanced-saga');
   mediaSelect = document.getElementById('advanced-media');
+  dvdToggle = document.getElementById('dvd-toggle');
 
   toggle?.addEventListener('click', () => {
     const open = panel.classList.toggle('open');
@@ -30,6 +32,11 @@ export function initAdvancedSearch({ onChange, getFilters, getGenres }) {
   genreSelect?.addEventListener('change', applyFiltersFromForm);
   sagaSelect?.addEventListener('change', applyFiltersFromForm);
   mediaSelect?.addEventListener('change', applyFiltersFromForm);
+  dvdToggle?.addEventListener('click', () => {
+    const active = dvdToggle.classList.toggle('has-active');
+    dvdToggle.setAttribute('aria-pressed', String(active));
+    applyFiltersFromForm();
+  });
   document.getElementById('advanced-clear')?.addEventListener('click', clear);
 
   refreshGenres(getGenres());
@@ -39,6 +46,7 @@ export function refreshGenres(genres) {
   if (!genreSelect) genreSelect = document.getElementById('advanced-genre');
   sagaSelect = document.getElementById('advanced-saga');
   mediaSelect = document.getElementById('advanced-media');
+  dvdToggle = document.getElementById('dvd-toggle');
   if (!genreSelect) return;
   const current = genreSelect.value;
   genreSelect.innerHTML = `<option value="">Tutti i generi</option>` + genres.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
@@ -75,7 +83,7 @@ function readForm() {
     runtimeTo: numberValue('advanced-runtime-to'),
     genre: genreSelect?.value || '',
     saga: sagaSelect?.value || '',
-    media: mediaSelect?.value || ''
+    media: dvdToggle?.classList.contains('has-active') ? 'DVD' : ''
   };
 }
 
@@ -88,6 +96,7 @@ export function clear() {
   if (genreSelect) genreSelect.value='';
   if (sagaSelect) sagaSelect.value='';
   if (mediaSelect) mediaSelect.value='';
+  if (dvdToggle) { dvdToggle.classList.remove('has-active'); dvdToggle.setAttribute('aria-pressed','false'); }
   applyFilters(readForm());
 }
 

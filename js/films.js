@@ -125,7 +125,7 @@ export function setAdvancedFilters(value){advancedFilters={...advancedFilters,..
 export function getAdvancedFilters(){return {...advancedFilters}}
 export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[]).forEach(g=>all.add(g)));return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getAllSagas(){const all=new Set();films.forEach(f=>{if(f.saga)all.add(f.saga);(f.sagas||[]).forEach(g=>all.add(g))});return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
-export function getAllMediaTypes(){const order=['HD','DVD']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
+export function getAllMediaTypes(){ return films.some(f=>f.media_type==='DVD'||(f.media_types||[]).includes('DVD')) ? ['DVD'] : []; }
 export function getFilteredCount(){return filtered().length}
 
 export function render() {
@@ -136,7 +136,7 @@ export function render() {
   list.forEach((f,i)=>{
     const card=document.createElement('article');card.className='card';card.style.animationDelay=`${Math.min(i*20,300)}ms`;
     const genres=(f.genres||[]).slice(0,3).map(g=>`<span class="card-tag">${esc(g)}</span>`).join('');
-    const media=(f.media_types||[]).map(g=>`<span class="card-tag media-tag">${esc(g)}</span>`).join('');
+    const media=((f.media_type === 'DVD' || (f.media_types||[]).includes('DVD')) ? '<span class="card-tag media-tag">DVD</span>' : '');
     const saga=(f.sagas||[]).map(g=>`<span class="card-tag saga-tag">${esc(g)}</span>`).join('');
     const poster=f.poster_url?`<img class="card-poster" src="${esc(f.poster_url)}" alt="${esc(f.title)}" loading="lazy">`:fallbackPoster(f.title);
     card.innerHTML=`${poster}<div class="card-body"><div class="card-title">${esc(f.title)}</div><div class="card-meta"><span class="card-year">${f.year||'—'}</span>${f.director?`<span>${esc(f.director)}</span>`:''}</div>${(genres||media||saga)?`<div class="card-genres">${genres}${saga}${media}</div>`:''}</div>`;
