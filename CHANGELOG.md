@@ -88,3 +88,8 @@
 - Added quick saga/cycle filter.
 - Added catalog sorting by title, year, TMDb rating and runtime.
 - Kept existing advanced search filters compatible.
+
+## 1.2.0-alpha.11
+- Fixed initial catalog loading by using a direct, bounded REST request for the public film list instead of waiting on Auth session state.
+- Added a 15-second connection timeout with an explicit error.
+- Corrected catalog search sorting logic so relevance sorting is actually applied when text search is active.

@@ -128,7 +128,7 @@ function searchScore(f, query) {
 function filtered() {
   const q=searchQuery.trim();
   const a=advancedFilters;
-  return films.filter(f => {
+  const list = films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
     if(quickSaga && !((f.saga && f.saga===quickSaga) || (f.sagas||[]).includes(quickSaga))) return false;
     if(dvdOnly && !((f.media_type||'').toUpperCase()==='DVD' || (f.media_types||[]).some(g=>String(g).toUpperCase()==='DVD'))) return false;
