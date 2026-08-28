@@ -10,20 +10,10 @@ export const supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey,
 });
 
 async function getAuthHeaders(extra = {}) {
-  let accessToken = CONFIG.supabaseAnonKey;
-  try {
-    const result = await Promise.race([
-      supabase.auth.getSession(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('auth session timeout')), 2000))
-    ]);
-    const session = result?.data?.session;
-    if (session?.access_token) accessToken = session.access_token;
-  } catch {
-    // Public catalog access must not depend on Supabase Auth.
-  }
+  const { data: { session } } = await supabase.auth.getSession();
   return {
     apikey: CONFIG.supabaseAnonKey,
-    Authorization: `Bearer ${accessToken}`,
+    Authorization: `Bearer ${session?.access_token || CONFIG.supabaseAnonKey}`,
     'Content-Type': 'application/json',
     ...extra
   };
@@ -44,16 +34,7 @@ async function request(url, options = {}) {
 }
 
 export async function loadFilms() {
-  const response = await fetch(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`, {
-    headers: { apikey: CONFIG.supabaseAnonKey, Accept: 'application/json' }
-  });
-  const text = await response.text();
-  let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-  if (!response.ok) {
-    throw new Error(data?.message || data?.error || `HTTP ${response.status}`);
-  }
-  return data;
+  return request(`${CONFIG.supabaseUrl}/rest/v1/${CONFIG.filmsTable}?select=*&order=title.asc`);
 }
 
 export async function searchFilm(title) {
