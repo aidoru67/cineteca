@@ -5,13 +5,13 @@ import { showToast } from './ui.js';
 import { updateStats } from './stats.js';
 import { initAdmin } from './admin.js';
 import { initExport } from './export.js';
-import { initAdvancedSearch, refreshGenres, refreshCollections } from './advanced-search.js';
+import { initAdvancedSearch, refreshGenres } from './advanced-search.js';
 
 async function loadCatalog(){
   const grid=document.getElementById('grid');
   try{
     const data=await api.loadFilms();
-    films.setFilms(data);films.buildTags();films.updateTagUI();refreshGenres(films.getAllGenres());refreshCollections(films.getAllSagas(), films.getAllMediaTypes());films.render();
+    films.setFilms(data);films.buildTags();films.updateTagUI();refreshGenres(films.getAllGenres());films.render();
     document.getElementById('header-count').textContent=`${data.length} film · ordinati per titolo`;
     updateStats(data);
   }catch(e){grid.innerHTML=`<div class="state-msg"><strong>!</strong>Errore: ${escapeText(e.message)}<br><small>Controlla la configurazione Supabase.</small></div>`}
@@ -22,10 +22,6 @@ initAdvancedSearch({ onChange: value => films.setAdvancedFilters(value), getFilt
 
 const search=document.getElementById('search');search.addEventListener('input',debounce(e=>films.setSearch(e.target.value),120));
 document.getElementById('genre-toggle').addEventListener('click',films.togglePanel);
-document.getElementById('saga-toggle')?.addEventListener('click',films.toggleSagaPanel);
-films.buildSagas(); films.updateSagaUI();
-window.addEventListener('cineteca:dvd-filter', e => films.setDvdOnly(Boolean(e.detail?.active)));
-films.updateDvdUI();
 document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)films.closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')films.closeModal()});
 

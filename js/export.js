@@ -46,7 +46,7 @@ export function initExport(getFilms, onStatus) {
   csvBtn.addEventListener('click', () => {
     const films = [...getFilms()];
     if (!films.length) { status('Il catalogo è vuoto.'); return; }
-    const columns = ['id','title','original_title','year','runtime','director','genres','synopsis','poster_url','tmdb_id','vote_average','tagline','cast_names','sagas','media_types','updated_at'];
+    const columns = ['id','title','original_title','year','runtime','director','genres','synopsis','poster_url','tmdb_id','vote_average','updated_at'];
     const rows = [columns.map(csvCell).join(',')];
     for (const film of films) rows.push(columns.map(key => csvCell(film[key])).join(','));
     const blob = new Blob([`\uFEFF${rows.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
