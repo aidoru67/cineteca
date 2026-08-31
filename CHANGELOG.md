@@ -10,3 +10,7 @@
 - Corretto il contatore del pulsante Saghe: mostra il numero di saghe disponibili nel catalogo, invece del numero di selezioni attive.
 
 - Corretto il caricamento iniziale del menu Saghe: ora il conteggio viene calcolato dopo aver caricato i film.
+
+## 1.2.0-alpha.3
+- Saga selezionata: risultati ordinati cronologicamente e intestazione della saga.
+- Badge DVD reso più evidente nelle card.

@@ -157,7 +157,18 @@ function filtered() {
     if(a.runtimeFrom && (!f.runtime || Number(f.runtime)<a.runtimeFrom)) return false;
     if(a.runtimeTo && (!f.runtime || Number(f.runtime)>a.runtimeTo)) return false;
     return true;
-  }).sort((x, y) => q ? searchScore(y, q) - searchScore(x, q) : normalizeText(x.title).localeCompare(normalizeText(y.title), 'it'));
+  }).sort((x, y) => {
+    if (activeSagas.size > 0) {
+      const sx = x.saga || (x.sagas || [])[0] || '';
+      const sy = y.saga || (y.sagas || [])[0] || '';
+      const sagaCmp = sx.localeCompare(sy, 'it');
+      if (sagaCmp) return sagaCmp;
+      const yearX = Number(x.year) || 9999;
+      const yearY = Number(y.year) || 9999;
+      if (yearX !== yearY) return yearX - yearY;
+    }
+    return q ? searchScore(y, q) - searchScore(x, q) : normalizeText(x.title).localeCompare(normalizeText(y.title), 'it');
+  });
 }
 
 export function setSearch(value){searchQuery=value;render()}
@@ -173,6 +184,13 @@ export function render() {
   document.getElementById('count').innerHTML=`<span>${list.length}</span> film`;
   if(!list.length){grid.innerHTML='<div class="state-msg"><strong>∅</strong>Nessun film trovato</div>';return;}
   grid.innerHTML='';
+  if (activeSagas.size === 1) {
+    const sagaName = [...activeSagas][0];
+    const heading = document.createElement('div');
+    heading.className = 'saga-results-heading';
+    heading.innerHTML = `<span class=\"saga-results-title\">${esc(sagaName)}</span><span class=\"saga-results-note\">ordine cronologico</span>`;
+    grid.appendChild(heading);
+  }
   list.forEach((f,i)=>{
     const card=document.createElement('article');card.className='card';card.style.animationDelay=`${Math.min(i*20,300)}ms`;
     const genres=(f.genres||[]).slice(0,3).map(g=>`<span class="card-tag">${esc(g)}</span>`).join('');
