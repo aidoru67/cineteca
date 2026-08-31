@@ -17,3 +17,5 @@ main{padding:2rem;max-width:1600px;margin:0 auto}.grid{display:grid;grid-templat
 .advanced-grid{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.advanced-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.advanced-grid{grid-template-columns:1fr}}
 
 .dvd-toggle.has-active{border-color:var(--accent);color:var(--accent);background:var(--tag-active)}
+
+#saga-panel .tags-inner{padding-top:.2rem}.saga-toggle.has-active{border-color:var(--accent);color:var(--accent)}.saga-badge{margin-left:.3rem;color:var(--accent)}#saga-panel .tag{white-space:nowrap}

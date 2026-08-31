@@ -2,6 +2,7 @@ import { esc, fallbackPoster } from './utils.js';
 
 let films = [];
 let activeGenres = new Set();
+let activeSagas = new Set();
 let dvdOnly = false;
 let searchQuery = '';
 let advancedFilters = { yearFrom:null, yearTo:null, director:'', original:'', runtimeFrom:null, runtimeTo:null, genre:'', saga:'', media:'' };
@@ -10,6 +11,7 @@ let onFilterChanged = () => {};
 export function setFilms(value) { films = Array.isArray(value) ? value : []; }
 export function getFilms() { return films; }
 export function getActiveGenres() { return activeGenres; }
+export function getActiveSagas() { return activeSagas; }
 export function setFilterListener(fn) { onFilterChanged = fn; }
 
 export function buildTags() {
@@ -27,6 +29,37 @@ export function buildTags() {
     container.appendChild(btn);
   });
   if (window.innerWidth >= 641) openPanel();
+}
+
+
+export function buildSagas() {
+  const all = getAllSagas();
+  const container = document.getElementById('saga-tags');
+  if (!container) return;
+  container.innerHTML = '';
+  const clear = document.createElement('button');
+  clear.className = 'tag tag-clear'; clear.type = 'button'; clear.textContent = '✕ tutte';
+  clear.addEventListener('click', () => { activeSagas.clear(); updateSagaUI(); render(); onFilterChanged(); });
+  container.appendChild(clear);
+  all.forEach(saga => {
+    const btn = document.createElement('button'); btn.className='tag'; btn.type='button'; btn.dataset.saga=saga; btn.textContent=saga;
+    btn.addEventListener('click', () => { activeSagas.has(saga) ? activeSagas.delete(saga) : activeSagas.add(saga); updateSagaUI(); render(); onFilterChanged(); });
+    container.appendChild(btn);
+  });
+}
+
+export function toggleSagaPanel() {
+  document.getElementById('saga-panel')?.classList.toggle('open');
+  document.getElementById('saga-toggle')?.classList.toggle('open');
+}
+
+export function updateSagaUI() {
+  document.querySelectorAll('#saga-tags .tag[data-saga]').forEach(b => b.classList.toggle('active', activeSagas.has(b.dataset.saga)));
+  const n=activeSagas.size;
+  const toggle=document.getElementById('saga-toggle');
+  const badge=document.getElementById('saga-badge');
+  if(toggle) { toggle.classList.toggle('has-active', n>0); toggle.setAttribute('aria-expanded', String(n>0)); }
+  if(badge) badge.textContent=n;
 }
 
 export function setDvdOnly(value){ dvdOnly=Boolean(value); updateDvdUI(); render(); onFilterChanged(); }
@@ -110,6 +143,7 @@ function filtered() {
   const a=advancedFilters;
   return films.filter(f => {
     if(activeGenres.size && !(f.genres||[]).some(g=>activeGenres.has(g))) return false;
+    if(activeSagas.size && !(activeSagas.has(f.saga) || (f.sagas||[]).some(g=>activeSagas.has(g)))) return false;
     if(dvdOnly && !((f.media_type||'').toUpperCase()==='DVD' || (f.media_types||[]).some(g=>String(g).toUpperCase()==='DVD'))) return false;
     if(q && searchScore(f, q) < 0.32) return false;
     if(a.genre && !(f.genres||[]).some(g=>g===a.genre)) return false;
