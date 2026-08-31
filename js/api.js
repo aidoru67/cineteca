@@ -41,8 +41,12 @@ export async function searchFilm(title) {
   return request(`${CONFIG.supabaseUrl}/functions/v1/search-film`, { method:'POST', body:JSON.stringify({ title }) });
 }
 
-export async function addFilm(tmdb_id) {
-  return request(`${CONFIG.supabaseUrl}/functions/v1/add-film`, { method:'POST', body:JSON.stringify({ tmdb_id }) });
+export async function addFilm(tmdb_id, saga = '', mediaTypes = []) {
+  return request(`${CONFIG.supabaseUrl}/functions/v1/add-film`, { method:'POST', body:JSON.stringify({ tmdb_id, saga, media_types: mediaTypes }) });
+}
+
+export async function editFilm(id, saga = '', mediaTypes = []) {
+  return request(`${CONFIG.supabaseUrl}/functions/v1/edit-film`, { method:'POST', body:JSON.stringify({ id, saga, media_types: mediaTypes }) });
 }
 
 export async function refreshFilm(tmdb_id) {
@@ -85,4 +89,8 @@ export function getPublicConfig() { return CONFIG; }
 
 export async function deleteFilm(id) {
   return request(`${CONFIG.supabaseUrl}/functions/v1/delete-film`, { method:'POST', body:JSON.stringify({ id }) });
+}
+
+export async function mergeFilms(keeper_id, duplicate_ids) {
+  return request(`${CONFIG.supabaseUrl}/functions/v1/merge-films`, { method:'POST', body:JSON.stringify({ keeper_id, duplicate_ids }) });
 }

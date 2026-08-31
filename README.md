@@ -46,3 +46,6 @@ Il pannello Admin include statistiche dinamiche del catalogo: copertura TMDb, du
 
 ### Backup ed esportazione
 Nel pannello Admin sono disponibili **Backup JSON** ed **Esporta CSV**. I file vengono creati direttamente nel browser usando i dati già caricati e non vengono inviati online.
+
+## v1.2.0-alpha.7
+Admin now supports editing Saga/Ciclo and Supporto for existing films. TMDb refresh preserves local metadata.
