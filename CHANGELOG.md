@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0-alpha.3
+- Aggiunto pulsante Film casuale.
+- La selezione casuale rispetta tutti i filtri attivi.
+- Se nessun film corrisponde ai filtri viene mostrato un messaggio.
+
+# Changelog
+
 ## 1.2.0-alpha.1
 - Aggiunto filtro rapido Saghe/Cicli.
 - La ricerca per saga usa i dati gia presenti nel catalogo.

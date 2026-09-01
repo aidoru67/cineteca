@@ -23,6 +23,10 @@ initAdvancedSearch({ onChange: value => films.setAdvancedFilters(value), getFilt
 const search=document.getElementById('search');search.addEventListener('input',debounce(e=>films.setSearch(e.target.value),120));
 document.getElementById('genre-toggle').addEventListener('click',films.togglePanel);
 document.getElementById('saga-toggle')?.addEventListener('click',films.toggleSagaPanel);
+document.getElementById('random-film')?.addEventListener('click',()=>{
+  const movie = films.pickRandom();
+  if (!movie) showToast('Nessun film corrisponde ai filtri attivi.');
+});
 films.buildSagas(); films.updateSagaUI();
 window.addEventListener('cineteca:dvd-filter', e => films.setDvdOnly(Boolean(e.detail?.active)));
 films.updateDvdUI();

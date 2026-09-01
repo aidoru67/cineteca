@@ -178,6 +178,7 @@ export function getAllGenres(){const all=new Set();films.forEach(f=>(f.genres||[
 export function getAllSagas(){const all=new Set();films.forEach(f=>{if(f.saga)all.add(f.saga);(f.sagas||[]).forEach(g=>all.add(g))});return [...all].sort((a,b)=>a.localeCompare(b,'it'));}
 export function getAllMediaTypes(){const order=['HD','DVD']; const all=new Set();films.forEach(f=>{if(f.media_type)all.add(f.media_type);(f.media_types||[]).forEach(g=>all.add(g))}); return [...all].sort((a,b)=>(order.indexOf(a)-order.indexOf(b))||a.localeCompare(b,'it'));}
 export function getFilteredCount(){return filtered().length}
+export function pickRandom(){ const list=filtered(); if(!list.length) return null; const movie=list[Math.floor(Math.random()*list.length)]; openModal(movie); return movie; }
 
 export function render() {
   const list=filtered(), grid=document.getElementById('grid');
