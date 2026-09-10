@@ -12,7 +12,8 @@ async function loadCatalog(){
     const data=await api.loadFilms();
     films.setFilms(data);films.buildTags();films.updateTagUI();films.buildSagas();films.updateSagaUI();refreshGenres(films.getAllGenres());refreshCollections(films.getAllSagas(), films.getAllMediaTypes());films.render();
     document.getElementById('header-count').textContent=`${data.length} film · ordinati per titolo`;
-    updateStats(data);
+    // Le statistiche appartengono al pannello Admin desktop; nella build mobile/public non sono presenti.
+    if (document.getElementById('stat-total')) updateStats(data);
   }catch(e){grid.innerHTML=`<div class="state-msg"><strong>!</strong>Errore: ${escapeText(e.message)}<br><small>Controlla la configurazione Supabase.</small></div>`}
 }
 function escapeText(v){const d=document.createElement('div');d.textContent=v;return d.innerHTML}
