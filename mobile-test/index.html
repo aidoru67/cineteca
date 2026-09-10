@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1f2e">
+<title>La Mia Cineteca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <p class="eyebrow">Collezione personale</p>
+  <h1>La Mia <em>Cineteca</em></h1>
+  <p class="subtitle" id="header-count">caricamento…</p>
+</header>
+
+<div class="controls">
+  <div class="controls-bar">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search" placeholder="Cerca titolo, regista…" autocomplete="off">
+    </div>
+    <div class="quick-filters">
+      <button class="genre-toggle" id="genre-toggle" type="button">Generi <span class="arrow">▾</span><span class="genre-badge" id="genre-badge">0</span></button>
+      <button class="genre-toggle dvd-toggle" id="dvd-toggle" type="button" aria-pressed="false">DVD</button>
+      <button class="genre-toggle saga-toggle" id="saga-toggle" type="button" aria-expanded="false">Saghe <span class="arrow">▾</span><span class="saga-badge" id="saga-badge">0</span></button>
+      <button class="genre-toggle random-toggle" id="random-film" type="button" title="Scegli un film casuale">🎲 Casuale</button>
+      <button class="genre-toggle advanced-toggle" id="advanced-toggle" type="button" aria-expanded="false">Filtri <span class="arrow">▾</span></button>
+    </div>
+    <div class="controls-status">
+      <span class="count" id="count"><span>0</span> film</span>
+    </div>
+  </div>
+  <div class="tags-panel" id="tags-panel"><div class="tags-inner" id="tags"></div></div>
+  <div class="tags-panel" id="saga-panel"><div class="tags-inner" id="saga-tags"></div></div>
+  <div class="advanced-panel" id="advanced-panel">
+    <div class="advanced-grid">
+      <label><span>Regista</span><input id="advanced-director" type="search" placeholder="es. Kubrick"></label>
+      <label><span>Titolo originale</span><input id="advanced-original" type="search" placeholder="es. The Godfather"></label>
+      <label><span>Anno da</span><input id="advanced-year-from" type="number" min="1888" max="2100" placeholder="es. 1980"></label>
+      <label><span>Anno a</span><input id="advanced-year-to" type="number" min="1888" max="2100" placeholder="es. 1999"></label>
+      <label><span>Durata min</span><input id="advanced-runtime-from" type="number" min="1" max="999" placeholder="min"></label>
+      <label><span>Durata max</span><input id="advanced-runtime-to" type="number" min="1" max="999" placeholder="max"></label>
+      <label><span>Genere</span><select id="advanced-genre"><option value="">Tutti i generi</option></select></label>
+      <label><span>Saga / ciclo</span><select id="advanced-saga"><option value="">Tutte le saghe</option></select></label>
+      <label><span>Supporto</span><select id="advanced-media"><option value="">Tutti i supporti</option></select></label>
+      <div class="advanced-actions"><button class="tag tag-clear" id="advanced-clear" type="button">✕ reset filtri</button></div>
+    </div>
+  </div>
+</div>
+
+<main><div class="grid" id="grid"><div class="state-msg"><strong>⬤</strong>Connessione a Supabase…</div></div></main>
+
+<div class="modal-overlay" id="modal-overlay" aria-hidden="true">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
